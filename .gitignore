@@ -1,0 +1,92 @@
+# ════════════════════════════════════════════════
+# Dependencies
+# ════════════════════════════════════════════════
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ════════════════════════════════════════════════
+# Next.js build outputs
+# ════════════════════════════════════════════════
+/.next/
+/out/
+/build
+.next
+
+# ════════════════════════════════════════════════
+# Environment variables — NEVER commit these
+# ════════════════════════════════════════════════
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+*.env
+
+# ════════════════════════════════════════════════
+# Large binary assets — use CDN or Git LFS instead
+# The hero-frames folder is ~57 MB (102 PNG frames).
+# To include in deployment:
+#   Option A: git lfs track "public/hero-frames/*.png"
+#   Option B: upload to a CDN and update FRAME_PATH in Hero.tsx
+# ════════════════════════════════════════════════
+public/hero-frames/
+
+# ════════════════════════════════════════════════
+# OS / Editor
+# ════════════════════════════════════════════════
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.pem
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+
+# ════════════════════════════════════════════════
+# Debug logs
+# ════════════════════════════════════════════════
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ════════════════════════════════════════════════
+# Testing / Coverage
+# ════════════════════════════════════════════════
+/coverage
+/.nyc_output
+
+# ════════════════════════════════════════════════
+# TypeScript
+# ════════════════════════════════════════════════
+*.tsbuildinfo
+next-env.d.ts
+
+# ════════════════════════════════════════════════
+# Vercel
+# ════════════════════════════════════════════════
+.vercel
+
+# ════════════════════════════════════════════════
+# Sensitive / private files
+# ════════════════════════════════════════════════
+*.key
+*.cert
+*.p12
+*.pfx
+secrets/
+private/
