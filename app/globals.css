@@ -204,10 +204,9 @@ section { width: 100dvw; }
   .marquee-box {
     display: flex;
     align-items: center;
-    width: 200%;
+    width: max-content;
     position: absolute;
-    overflow: hidden;
-    animation: marquee 60s linear infinite;
+    animation: marqueeT 40s linear infinite;
   }
   .marquee-item { @apply md:w-40 w-32 flex-shrink-0; }
 
@@ -413,4 +412,23 @@ html {
 ::selection {
   background: rgba(196,154,60,0.2);
   color: #EFEFEA;
+}
+
+/* ── Spin animation for loading spinner ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Scroll margin so fixed navbar doesn't cover anchors ── */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
+/* ── Image wrapper: position:relative guard ── */
+.image-wrapper {
+  position: relative;
 }

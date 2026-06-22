@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 // Inline SVG icons to avoid broken image dependencies
 const GitHubIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
