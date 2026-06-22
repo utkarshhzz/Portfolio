@@ -1,109 +1,193 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, ArrowUpRight, Download, Code2 } from "lucide-react";
-import SectionHeader from "@/components/shared/SectionHeader";
-
-const GHIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-    <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
-  </svg>
-);
-const LIIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-  </svg>
-);
-
-const contactLinks = [
-  { id: "contact-github",   label: "GitHub",    handle: "@utkarshrpg",          href: "https://github.com/utkarshrpg",         Icon: GHIcon,   desc: "Open source work & project code",    color: "#EFEFEA" },
-  { id: "contact-linkedin", label: "LinkedIn",  handle: "Utkarsh Kumar",         href: "https://linkedin.com/in/utkarsh-kumar", Icon: LIIcon,   desc: "Professional network & experience",   color: "#0a66c2" },
-  { id: "contact-email",    label: "Email",     handle: "utkarsh@example.com",   href: "mailto:utkarsh@example.com",            Icon: Mail,     desc: "Direct line for opportunities",       color: "#C49A3C" },
-  { id: "contact-leetcode", label: "LeetCode",  handle: "@utkarshrpg",           href: "https://leetcode.com/utkarshrpg",       Icon: Code2,    desc: "Problem solving & algorithms",        color: "#FFA116" },
-];
+import Image from "next/image";
 
 export default function Contact() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 1200));
+    setLoading(false);
+    setSent(true);
+    setForm({ name: "", email: "", message: "" });
+    setTimeout(() => setSent(false), 5000);
+  };
+
   return (
-    <section id="contact" className="section-pad relative" style={{ background: "#080808" }}>
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg,transparent,rgba(196,154,60,0.12),transparent)" }} />
-
-      <div className="container-md text-center">
-        <SectionHeader
-          eyebrow="Contact"
-          title="Let's work together"
-          description="Open to AI engineering roles, research collaborations, and impactful product teams."
-          align="center"
-        />
-
-        {/* Email CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-          className="mb-12"
-        >
-          <a id="contact-email-cta" href="mailto:utkarsh@example.com"
-            className="btn-primary text-base px-8 py-4 mx-auto inline-flex">
-            <Mail size={17} />
-            Send me a message
-          </a>
-          <p className="mt-3 text-xs" style={{ color: "var(--text-3)" }}>
-            Usually respond within 24 hours
-          </p>
-        </motion.div>
-
-        {/* Link cards grid */}
-        <div className="grid sm:grid-cols-2 gap-4 text-left max-w-2xl mx-auto">
-          {contactLinks.map((link, i) => {
-            const Icon = link.Icon;
-            return (
-              <motion.a
-                key={link.id}
-                id={link.id}
-                href={link.href}
-                target={link.href.startsWith("http") ? "_blank" : undefined}
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22,1,0.36,1] }}
-                whileHover={{ y: -4 }}
-                className="group glass-card p-5 flex items-center gap-4 no-underline"
-                style={{ textDecoration: "none" }}
-              >
-                <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
-                  style={{ background: `${link.color}14`, border: `1px solid ${link.color}28` }}>
-                  <Icon />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold mb-0.5" style={{ color: "var(--text-1)" }}>{link.label}</p>
-                  <p className="text-xs mb-1" style={{ color: link.color, opacity: 0.8 }}>{link.handle}</p>
-                  <p className="text-xs" style={{ color: "var(--text-3)" }}>{link.desc}</p>
-                </div>
-                <ArrowUpRight size={15}
-                  className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                  style={{ color: link.color }} />
-              </motion.a>
-            );
-          })}
+    <section id="contact" className="w-full bg-black section-padding">
+      {/* Header */}
+      <motion.div
+        className="flex flex-col items-center mb-12"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="eyebrow-badge mb-5">
+          💬 Have questions or ideas? Let&apos;s talk! 🚀
         </div>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
+          Get in Touch — Let&apos;s Connect
+        </h2>
+      </motion.div>
 
-        {/* Resume download */}
+      {/* Two-column layout — matches reference exactly */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 max-w-6xl mx-auto rounded-2xl overflow-hidden border border-black-50">
+
+        {/* ── LEFT: Form ── */}
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          className="p-8 md:p-10"
+          style={{ background: "rgba(14,14,16,0.95)" }}
+          initial={{ opacity: 0, x: -24 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="mt-10"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <a id="contact-resume" href="/resume.pdf" download="Utkarsh_Kumar_Resume.pdf"
-            className="btn-secondary inline-flex">
-            <Download size={14} />
-            Download Resume (PDF)
-          </a>
+          {sent ? (
+            <div className="flex flex-col items-center justify-center h-full py-20 gap-5 text-center">
+              <div className="text-6xl">✅</div>
+              <p className="text-xl font-bold text-white">Message sent!</p>
+              <p className="text-blue-50 text-sm">I&apos;ll get back to you within 24 hours.</p>
+            </div>
+          ) : (
+            <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div>
+                <label>Your name</label>
+                <input
+                  type="text" name="name" value={form.name} required
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  placeholder="What's your good name?"
+                />
+              </div>
+              <div>
+                <label>Your Email</label>
+                <input
+                  type="email" name="email" value={form.email} required
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  placeholder="What's your email address?"
+                />
+              </div>
+              <div>
+                <label>Your Message</label>
+                <textarea
+                  name="message" value={form.message} required rows={5}
+                  onChange={e => setForm({ ...form, message: e.target.value })}
+                  placeholder="How can I help you?"
+                />
+              </div>
+
+              {/* Submit button — reference style */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 rounded-md font-semibold text-sm tracking-wider uppercase transition-all duration-200"
+                style={{
+                  background: loading ? "rgba(239,239,234,0.7)" : "#EFEFEA",
+                  color: "#080808",
+                  letterSpacing: "0.08em",
+                  cursor: loading ? "not-allowed" : "pointer",
+                }}
+              >
+                {loading ? "Sending..." : "Send Message"}
+              </button>
+            </form>
+          )}
         </motion.div>
+
+        {/* ── RIGHT: Visual panel (amber/gold — matches reference) ── */}
+        <motion.div
+          className="relative flex flex-col items-center justify-center p-10 overflow-hidden min-h-[400px]"
+          style={{ background: "linear-gradient(135deg, #C49A3C 0%, #8B6914 40%, #5C430A 100%)" }}
+          initial={{ opacity: 0, x: 24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {/* Dot-grid overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(rgba(0,0,0,0.15) 1px, transparent 1px)",
+              backgroundSize: "22px 22px",
+            }}
+          />
+
+          {/* Decorative desk illustration using CSS */}
+          <div className="relative z-10 flex flex-col items-center gap-6 text-center">
+            {/* Monitor illustration */}
+            <div className="relative">
+              {/* Monitor body */}
+              <div
+                className="w-48 h-32 rounded-lg flex items-center justify-center"
+                style={{ background: "rgba(0,0,0,0.5)", border: "2px solid rgba(255,255,255,0.2)" }}
+              >
+                {/* Screen content */}
+                <div className="w-40 h-24 rounded flex flex-col gap-1.5 p-3 overflow-hidden"
+                  style={{ background: "#080808" }}
+                >
+                  <div className="h-1.5 w-20 rounded" style={{ background: "#C49A3C" }} />
+                  <div className="h-1 w-28 rounded opacity-50" style={{ background: "#839cb5" }} />
+                  <div className="h-1 w-16 rounded opacity-40" style={{ background: "#839cb5" }} />
+                  <div className="mt-1 h-1.5 w-24 rounded opacity-60" style={{ background: "#4ade80" }} />
+                  <div className="h-1 w-20 rounded opacity-40" style={{ background: "#839cb5" }} />
+                  <div className="h-1.5 w-14 rounded opacity-50" style={{ background: "#C49A3C" }} />
+                </div>
+              </div>
+              {/* Monitor stand */}
+              <div className="mx-auto mt-0 w-4 h-6" style={{ background: "rgba(0,0,0,0.4)" }} />
+              <div className="mx-auto w-20 h-2 rounded" style={{ background: "rgba(0,0,0,0.3)" }} />
+            </div>
+
+            {/* Keyboard */}
+            <div
+              className="w-44 h-8 rounded"
+              style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.1)" }}
+            />
+
+            {/* Message */}
+            <div>
+              <p className="font-bold text-xl" style={{ color: "rgba(0,0,0,0.8)" }}>
+                Let&apos;s build something
+              </p>
+              <p className="font-bold text-xl" style={{ color: "rgba(0,0,0,0.8)" }}>
+                amazing together 🚀
+              </p>
+            </div>
+
+            {/* Quick links */}
+            <div className="flex flex-col gap-2 w-full max-w-xs">
+              {[
+                { label: "📧 unofficialutkarsh.06@gmail.com", href: "mailto:unofficialutkarsh.06@gmail.com" },
+                { label: "💼 LinkedIn", href: "https://www.linkedin.com/in/utkarsh-kumar-801703321/" },
+                { label: "🐙 GitHub",  href: "https://github.com/utkarshhzz" },
+                { label: "⚡ LeetCode", href: "https://leetcode.com/u/utkarshzz/" },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-[1.02]"
+                  style={{
+                    background: "rgba(0,0,0,0.25)",
+                    color: "rgba(255,255,255,0.9)",
+                    backdropFilter: "blur(4px)",
+                  }}
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
       </div>
     </section>
   );

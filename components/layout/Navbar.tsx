@@ -1,143 +1,150 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, Download, Command } from "lucide-react";
-import { useActiveSection } from "@/lib/hooks/useActiveSection";
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
-const navLinks = [
-  { id: "about",        label: "About" },
-  { id: "experience",   label: "Experience" },
-  { id: "projects",     label: "Projects" },
-  { id: "skills",       label: "Skills" },
-  { id: "testimonials", label: "Testimonials" },
-  { id: "contact",      label: "Contact" },
+const NAV_LINKS = [
+  { name: "Work",         href: "projects" },
+  { name: "Experience",   href: "experience" },
+  { name: "Skills",       href: "skills" },
+  { name: "Testimonials", href: "testimonials" },
 ];
 
-export default function Navbar({ onCommandPalette }: { onCommandPalette: () => void }) {
-  const [scrolled,    setScrolled]    = useState(false);
-  const [mobileOpen,  setMobileOpen]  = useState(false);
-  const [scrollPct,   setScrollPct]   = useState(0);
-  const active = useActiveSection(navLinks.map(l => l.id));
-
-  const scrollTo = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    setMobileOpen(false);
-  }, []);
+export default function Navbar() {
+  const [visible,    setVisible]    = useState(false); // hidden during hero
+  const [scrolled,   setScrolled]   = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => {
-      const total = document.documentElement.scrollHeight - innerHeight;
-      setScrollPct(total > 0 ? window.scrollY / total : 0);
-      setScrolled(window.scrollY > 60);
+    const update = () => {
+      // Hero section is 350vh tall — navbar only appears after it ends
+      const heroEl = document.getElementById("hero");
+      const heroBottom = heroEl
+        ? heroEl.offsetTop + heroEl.offsetHeight - window.innerHeight
+        : window.innerHeight * 2.5;
+
+      const pastHero = window.scrollY >= heroBottom;
+      setVisible(pastHero);
+      setScrolled(pastHero); // dark bg from the moment it appears
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
-  useEffect(() => {
-    const kd = (e: KeyboardEvent) => { if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); onCommandPalette(); } };
-    window.addEventListener("keydown", kd);
-    return () => window.removeEventListener("keydown", kd);
-  }, [onCommandPalette]);
-
-  useEffect(() => { document.body.style.overflow = mobileOpen ? "hidden" : ""; }, [mobileOpen]);
+  const scrollTo = (id: string) => {
+    setMobileOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
-    <>
-      {/* Scroll progress bar */}
-      <div className="fixed top-0 left-0 right-0 h-[2px] z-[200] origin-left"
-        style={{ transform: `scaleX(${scrollPct})`, background: "linear-gradient(90deg, var(--gold), var(--gold-light))", transformOrigin: "left" }} />
+    <motion.header
+      className={`navbar ${scrolled ? "scrolled" : "not-scrolled"}`}
+      animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : -12 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      style={{ pointerEvents: visible ? "auto" : "none" }}
+    >
+      <div className="inner">
 
-      <motion.header
-        className="fixed top-0 left-0 right-0 z-50"
-        initial={{ y: -70, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.65, ease: [0.22,1,0.36,1] }}
-      >
-        <div className="transition-all duration-300"
-          style={{
-            background: scrolled ? "rgba(8,8,8,0.82)" : "transparent",
-            backdropFilter: scrolled ? "blur(24px) saturate(140%)" : "none",
-            borderBottom: scrolled ? "1px solid var(--border)" : "none",
-          }}>
-          <div className="container-lg flex items-center justify-between h-16 px-6">
-
-            {/* Logo */}
-            <button id="navbar-logo" onClick={() => scrollTo("hero")}
-              className="flex items-center gap-1.5 group">
-              <span className="font-bold text-[15px] tracking-tight" style={{ color: "var(--text-1)" }}>UK</span>
-              <span className="font-mono text-[15px] transition-colors duration-200 group-hover:text-[var(--gold)]"
-                style={{ color: "rgba(196,154,60,0.6)" }}>/&gt;</span>
-            </button>
-
-            {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-0.5">
-              {navLinks.map(link => (
-                <button key={link.id} id={`nav-${link.id}`} onClick={() => scrollTo(link.id)}
-                  className="px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-200"
-                  style={{
-                    color: active === link.id ? "var(--text-1)" : "var(--text-3)",
-                    background: active === link.id ? "rgba(255,255,255,0.05)" : "transparent",
-                  }}>
-                  {link.label}
-                </button>
-              ))}
-            </nav>
-
-            {/* Actions */}
-            <div className="hidden md:flex items-center gap-2">
-              <button id="navbar-cmd" onClick={onCommandPalette}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-200 hover:bg-white/[0.05]"
-                style={{ color: "var(--text-3)", border: "1px solid var(--border)" }}>
-                <Command size={11} /> K
-              </button>
-              <a href="/resume.pdf" id="navbar-resume" download="Utkarsh_Kumar_Resume.pdf"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200"
-                style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)", color: "var(--gold)" }}>
-                <Download size={12} /> Resume
-              </a>
-            </div>
-
-            {/* Hamburger */}
-            <button id="navbar-mobile" className="md:hidden p-2 rounded-lg hover:bg-white/[0.05] transition-colors"
-              onClick={() => setMobileOpen(p => !p)} aria-label="Toggle menu">
-              {mobileOpen ? <X size={20} style={{ color: "var(--text-1)" }} /> : <Menu size={20} style={{ color: "var(--text-1)" }} />}
-            </button>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-40 md:hidden"
-          style={{ background: "rgba(8,8,8,0.96)", backdropFilter: "blur(24px)" }}
-          onClick={() => setMobileOpen(false)}
+        {/* Logo — full name */}
+        <button
+          className="logo flex items-center"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
-          <nav className="absolute top-16 left-0 right-0 p-6 flex flex-col gap-1"
-            onClick={e => e.stopPropagation()}>
-            {navLinks.map((link, i) => (
-              <motion.button key={link.id} onClick={() => scrollTo(link.id)}
-                className="text-left py-3 px-4 rounded-xl text-lg font-medium transition-colors hover:bg-white/[0.04]"
-                style={{ color: "var(--text-1)" }}
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.06 }}>
-                {link.label}
-              </motion.button>
+          <span className="text-sm md:text-base font-semibold tracking-tight" style={{ color: "var(--text-1)" }}>
+            Utkarsh Kumar
+          </span>
+        </button>
+
+        {/* Desktop nav */}
+        <nav className="desktop" aria-label="Main navigation">
+          <ul>
+            {NAV_LINKS.map(link => (
+              <li key={link.name}>
+                <span onClick={() => scrollTo(link.href)}>{link.name}</span>
+                <div className="underline" />
+              </li>
             ))}
-            <div className="mt-6 flex flex-col gap-3">
-              <a href="/resume.pdf" download className="btn-primary justify-center">
-                <Download size={14} /> Download Resume
-              </a>
+          </ul>
+        </nav>
+
+        {/* Right side: Resume + Contact */}
+        <div className="flex items-center gap-3">
+          <a
+            href="/resume.pdf"
+            download="Utkarsh_Kumar_Resume.pdf"
+            className="hidden md:flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg border transition-colors duration-200"
+            style={{ borderColor: "rgba(196,154,60,0.3)", color: "var(--gold)", background: "rgba(196,154,60,0.06)" }}
+          >
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 10l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Resume
+          </a>
+
+          <button
+            onClick={() => scrollTo("contact")}
+            className="contact-btn hidden md:flex"
+          >
+            <div className="inner">
+              <span>Contact me</span>
             </div>
-          </nav>
-        </motion.div>
-      )}
-    </>
+          </button>
+
+          {/* Mobile hamburger */}
+          <button
+            className="flex lg:hidden p-2 rounded-lg text-white-50 bg-black-100 border border-black-50"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              {mobileOpen
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile dropdown */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden mx-4 mt-2 mb-4 rounded-xl overflow-hidden border border-black-50 bg-black-100"
+          >
+            {NAV_LINKS.map(link => (
+              <button
+                key={link.name}
+                onClick={() => scrollTo(link.href)}
+                className="flex w-full items-center px-5 py-3.5 text-sm font-medium text-white-50 hover:text-white border-b border-black-50/50 transition-colors last:border-0"
+              >
+                {link.name}
+              </button>
+            ))}
+            <div className="px-4 py-3 flex gap-2">
+              <a
+                href="/resume.pdf"
+                download="Utkarsh_Kumar_Resume.pdf"
+                className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-center border transition-colors"
+                style={{ borderColor: "rgba(196,154,60,0.3)", color: "var(--gold)", background: "rgba(196,154,60,0.08)" }}
+              >
+                Resume
+              </a>
+              <button
+                onClick={() => scrollTo("contact")}
+                className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-white text-black transition-colors"
+              >
+                Contact me
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.header>
   );
 }

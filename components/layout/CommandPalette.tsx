@@ -110,10 +110,10 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
     {
       id: "github",
       label: "GitHub",
-      description: "github.com/utkarshrpg",
+      description: "github.com/utkarshhzz",
       icon: <GithubIcon size={15} />,
       action: () => {
-        window.open("https://github.com/utkarshrpg", "_blank");
+        window.open("https://github.com/utkarshhzz", "_blank");
         onClose();
       },
       category: "Links",
@@ -121,10 +121,21 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
     {
       id: "linkedin",
       label: "LinkedIn",
-      description: "linkedin.com/in/utkarsh-kumar",
+      description: "linkedin.com/in/utkarsh-kumar-801703321",
       icon: <LinkedinIcon size={15} />,
       action: () => {
-        window.open("https://linkedin.com/in/utkarsh-kumar", "_blank");
+        window.open("https://www.linkedin.com/in/utkarsh-kumar-801703321/", "_blank");
+        onClose();
+      },
+      category: "Links",
+    },
+    {
+      id: "leetcode",
+      label: "LeetCode",
+      description: "leetcode.com/u/utkarshzz",
+      icon: <Zap size={15} />,
+      action: () => {
+        window.open("https://leetcode.com/u/utkarshzz/", "_blank");
         onClose();
       },
       category: "Links",

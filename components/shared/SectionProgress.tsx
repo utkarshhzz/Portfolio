@@ -4,11 +4,10 @@ import { motion } from "framer-motion";
 import { useActiveSection } from "@/lib/hooks/useActiveSection";
 
 const sections = [
-  { id: "hero",         label: "Home" },
-  { id: "about",        label: "About" },
+  { id: "hero",         label: "Intro" },
+  { id: "identity",     label: "About" },
+  { id: "projects",     label: "Work" },
   { id: "experience",   label: "Experience" },
-  { id: "projects",     label: "Projects" },
-  { id: "achievements", label: "Achievements" },
   { id: "skills",       label: "Skills" },
   { id: "testimonials", label: "Testimonials" },
   { id: "contact",      label: "Contact" },
@@ -38,15 +37,9 @@ export default function SectionProgress() {
             >
               {s.label}
             </span>
-            <motion.div
-              layout
-              animate={{
-                width:      isActive ? 22 : 6,
-                background: isActive ? "var(--gold)" : "rgba(255,255,255,0.15)",
-                boxShadow:  isActive ? "0 0 8px rgba(196,154,60,0.4)" : "none",
-              }}
-              transition={{ type: "spring", stiffness: 420, damping: 32 }}
-              style={{ height: 6, borderRadius: 3 }}
+            <span
+              className={`progress-dot ${isActive ? "active" : ""}`}
+              style={{ transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)" }}
             />
           </button>
         );

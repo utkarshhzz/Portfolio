@@ -1,25 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import Navbar        from "@/components/layout/Navbar";
-import Footer        from "@/components/layout/Footer";
+import Navbar          from "@/components/layout/Navbar";
+import Footer          from "@/components/layout/Footer";
 import SectionProgress from "@/components/shared/SectionProgress";
 import ScrollProgress  from "@/components/shared/ScrollProgress";
 import CommandPalette  from "@/components/layout/CommandPalette";
 
-import EntranceScreen from "@/sections/EntranceScreen";
-import Hero           from "@/sections/Hero";
-import About          from "@/sections/About";
-import Experience     from "@/sections/Experience";
-import Projects       from "@/sections/Projects";
-import Achievements   from "@/sections/Achievements";
-import Skills         from "@/sections/Skills";
-import Testimonials   from "@/sections/Testimonials";
-import Contact        from "@/sections/Contact";
+import EntranceScreen   from "@/sections/EntranceScreen";
+import Hero             from "@/sections/Hero";
+import IdentitySection  from "@/sections/IdentitySection";
+import LogoShowcase     from "@/sections/LogoShowcase";
+import ShowcaseSection  from "@/sections/ShowcaseSection";
+import FeatureCards     from "@/sections/FeatureCards";
+import Experience       from "@/sections/Experience";
+import Skills           from "@/sections/Skills";
+import Testimonials     from "@/sections/Testimonials";
+import Contact          from "@/sections/Contact";
 
 export default function Home() {
-  const [cmdOpen,        setCmdOpen]        = useState(false);
-  const [entranceDone,   setEntranceDone]   = useState(false);
+  const [cmdOpen,      setCmdOpen]      = useState(false);
+  const [entranceDone, setEntranceDone] = useState(false);
 
   return (
     <>
@@ -34,21 +35,35 @@ export default function Home() {
       )}
 
       {/* ── Navigation */}
-      <Navbar onCommandPalette={() => setCmdOpen(true)} />
+      <Navbar />
 
-      {/* ── Side section progress dots (desktop) */}
+      {/* ── Side section progress dots (desktop only) */}
       <SectionProgress />
 
-      {/* ── Mobile-only thin progress bar */}
+      {/* ── Mobile-only thin scroll progress bar */}
       <ScrollProgress />
 
-      {/* ── All sections */}
+      {/* ── Page content */}
       <main>
+        {/*
+          Flow:
+          1. Entrance quote screen (cinematic)
+          2. Hero — scroll-driven canvas frames (CLEAN, no text)
+          3. IdentitySection — name / bio / CTAs / stats (after hero)
+          4. LogoShowcase — dual-row tech marquee
+          5. ShowcaseSection — featured + 2 smaller projects (reference layout)
+          6. FeatureCards — 3-col ability cards
+          7. Experience — GlowCard left + timeline right (reference layout)
+          8. Skills — 5-col tech icon grid (reference layout)
+          9. Testimonials — GlowCard masonry columns (reference layout)
+          10. Contact — form left + decorative visual right
+        */}
         <Hero />
-        <About />
+        <IdentitySection />
+        <LogoShowcase />
+        <ShowcaseSection />
+        <FeatureCards />
         <Experience />
-        <Projects />
-        <Achievements />
         <Skills />
         <Testimonials />
         <Contact />

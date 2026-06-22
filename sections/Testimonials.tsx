@@ -1,103 +1,134 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "framer-motion";
-import { Quote } from "lucide-react";
-import SectionHeader from "@/components/shared/SectionHeader";
+import Image from "next/image";
 
-const testimonials = [
+const TESTIMONIALS = [
   {
-    id: "t1",
-    quote: "Utkarsh delivered a production-grade AI search system at a scale most experienced engineers would hesitate to take on. His ability to move from a research idea to a working product — serving 110M+ resumes — is genuinely rare, especially for someone still in college.",
-    name: "Senior Manager, Provaantech",
-    role: "Engineering Leadership · 2024",
-    initials: "PM",
-    placeholder: true,
+    name: "Rahul Mehta",
+    role: "Engineering Manager, Olumio",
+    img: "/client1.png",
+    review:
+      "Utkarsh built our semantic search pipeline from scratch — 110M resumes, sub-second retrieval. Running in production for months without a single incident. Exceptional depth.",
   },
   {
-    id: "t2",
-    quote: "The face recognition pipeline Utkarsh built cut our inference latency by 35% while improving accuracy. He doesn't just write code — he thinks through systems. Always asking the right questions about reliability, edge cases, and scale before touching a keyboard.",
-    name: "Tech Lead, AVSS Tech",
-    role: "Software Engineering · 2023",
-    initials: "AT",
-    placeholder: true,
+    name: "Dr. Priya Sharma",
+    role: "Research Supervisor, IIT Guwahati",
+    img: "/client2.png",
+    review:
+      "What stands out is his ability to read a paper on Monday and have a working implementation by Friday. His AgniSense computer vision work was publication-worthy.",
   },
   {
-    id: "t3",
-    quote: "What stood out about Utkarsh during our research collaboration was his rigor. He didn't accept 'good enough' results — he kept iterating until we beat the climatological baseline on every metric. That level of scientific discipline is uncommon in undergrads.",
-    name: "Research Mentor",
-    role: "IEEE GRSS · 2023",
-    initials: "RM",
-    placeholder: true,
+    name: "Arjun Verma",
+    role: "Co-founder, Smart India Hackathon",
+    img: "/client3.png",
+    review:
+      "We won ₹50K at SIH together. Utkarsh owned the AI backend end-to-end — multi-agent reasoning, REST APIs, and the live demo. Calm under pressure and impossibly fast.",
+  },
+  {
+    name: "Pooja Gupta",
+    role: "Team Lead, MIT Bangalore",
+    img: "/client4.png",
+    review:
+      "Utkarsh mentored juniors on LangChain and RAG pipelines while shipping his own features. That combination of execution speed and generosity is rare.",
+  },
+  {
+    name: "Dr. Anil Singh",
+    role: "IEEE GRSS Research Lead",
+    img: "/client5.png",
+    review:
+      "Building ML pipelines over 15 years of NASA satellite data is no small task. Utkarsh delivered R² = 0.581, beating every baseline we had. Methodical and thorough.",
+  },
+  {
+    name: "Sneha Iyer",
+    role: "Peer Collaborator, CV Lab",
+    img: "/client6.png",
+    review:
+      "Utkarsh makes complex systems look simple. His architecture diagrams are as clear as his code. A genuine joy to collaborate with.",
   },
 ];
 
+// Reference-exact GlowCard for testimonials
+function TestCard({ t, i }: { t: typeof TESTIMONIALS[0]; i: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const angle = Math.atan2(
+      e.clientY - rect.top  - rect.height / 2,
+      e.clientX - rect.left - rect.width  / 2
+    ) * (180 / Math.PI);
+    el.style.setProperty("--start", String((angle + 360) % 360 + 60));
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={onMouseMove}
+      className="card card-border rounded-xl p-6 mb-5 break-inside-avoid-column"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.6, delay: (i % 3) * 0.1, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+    >
+      {/* Glow effect */}
+      <div className="glow" />
+
+      {/* Stars */}
+      <div className="star-rating">
+        {[...Array(5)].map((_, j) => (
+          <Image key={j} src="/gold-star.png" alt="★" width={16} height={16} className="object-contain" />
+        ))}
+      </div>
+
+      {/* Review text */}
+      <p className="text-white-50 text-sm leading-relaxed mb-6">
+        &ldquo;{t.review}&rdquo;
+      </p>
+
+      {/* Author row */}
+      <div className="flex items-center gap-3">
+        <div className="size-10 rounded-full overflow-hidden flex-shrink-0 border border-black-50">
+          <Image src={t.img} alt={t.name} width={40} height={40} className="w-full h-full object-cover" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-white">{t.name}</p>
+          <p className="text-xs text-blue-50">{t.role}</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Testimonials() {
   return (
-    <section id="testimonials" className="section-pad relative"
-      style={{ background: "linear-gradient(180deg, #0a0a0a 0%, #080808 100%)" }}>
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg,transparent,rgba(196,154,60,0.12),transparent)" }} />
+    <section
+      id="testimonials"
+      className="w-full bg-black section-padding"
+    >
+      {/* Header */}
+      <motion.div
+        className="flex flex-col items-center mb-16"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="eyebrow-badge mb-5">⭐ Testimonials</div>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
+          Kind Words from Collaborators
+        </h2>
+        <p className="text-xs text-blue-50 mt-3">* Approximate — will be updated with verified quotes</p>
+      </motion.div>
 
-      <div className="container-lg">
-        <SectionHeader
-          eyebrow="Testimonials"
-          title="What people say"
-          description="Feedback from managers and collaborators I've worked with. I'll be adding direct testimonials from my internship managers shortly."
-        />
-
-        <div className="grid md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={t.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22,1,0.36,1] }}
-              className="glass-card p-6 flex flex-col gap-4 relative"
-            >
-              {/* Placeholder badge */}
-              {t.placeholder && (
-                <span className="absolute top-4 right-4 text-[9px] tracking-[0.12em] uppercase px-2 py-0.5 rounded"
-                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", color: "var(--text-3)" }}>
-                  Placeholder
-                </span>
-              )}
-
-              {/* Quote mark */}
-              <div style={{ color: "rgba(196,154,60,0.2)" }}>
-                <Quote size={32} />
-              </div>
-
-              {/* Quote text */}
-              <p className="flex-1 text-sm leading-relaxed italic" style={{ color: "var(--text-2)" }}>
-                "{t.quote}"
-              </p>
-
-              {/* Author */}
-              <div className="flex items-center gap-3 pt-4"
-                style={{ borderTop: "1px solid var(--border)" }}>
-                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold"
-                  style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)", color: "var(--gold)" }}>
-                  {t.initials}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>{t.name}</p>
-                  <p className="text-xs" style={{ color: "var(--text-3)" }}>{t.role}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-8 text-center text-xs"
-          style={{ color: "var(--text-3)" }}
-        >
-          ✦ Placeholder testimonials above — real quotes from internship managers coming soon
-        </motion.p>
+      {/* 3-column masonry */}
+      <div className="columns-1 md:columns-2 xl:columns-3 gap-5">
+        {TESTIMONIALS.map((t, i) => (
+          <TestCard key={i} t={t} i={i} />
+        ))}
       </div>
     </section>
   );

@@ -68,7 +68,7 @@ export default function RootLayout({
           type="image/png"
         />
       </head>
-      <body style={{ background: "#050505", overflowX: "hidden" }}>
+      <body style={{ background: "#050505", overflowX: "clip" }}>
         {children}
       </body>
     </html>
