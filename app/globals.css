@@ -295,6 +295,23 @@ section { width: 100dvw; }
     color: var(--gold);
   }
 
+  /* Section progress dots (right side desktop nav) */
+  .progress-dot {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+  }
+  .progress-dot.active {
+    background: var(--gold);
+    width: 6px;
+    height: 20px;
+    border-radius: 3px;
+    box-shadow: 0 0 8px rgba(196,154,60,0.5);
+  }
+
   /* CTA button */
   .cta-wrapper { @apply relative z-20 cursor-pointer; }
   .cta-button {
