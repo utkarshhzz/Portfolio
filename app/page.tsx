@@ -14,6 +14,7 @@ import LogoShowcase     from "@/sections/LogoShowcase";
 import ShowcaseSection  from "@/sections/ShowcaseSection";
 import FeatureCards     from "@/sections/FeatureCards";
 import Experience       from "@/sections/Experience";
+import Education        from "@/sections/Education";
 import Skills           from "@/sections/Skills";
 import Testimonials     from "@/sections/Testimonials";
 import Contact          from "@/sections/Contact";
@@ -64,6 +65,7 @@ export default function Home() {
         <ShowcaseSection />
         <FeatureCards />
         <Experience />
+        <Education />
         <Skills />
         <Testimonials />
         <Contact />

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 /* ── Animated counter ── */
 function Counter({ to, suffix }: { to: number; suffix: string }) {
@@ -251,13 +252,48 @@ export default function IdentitySection() {
             </FadeUp>
           </div>
 
-          {/* RIGHT — Stats cards */}
-          <div className="xl:w-[380px] xl:flex-shrink-0">
+          {/* RIGHT — Profile photo + Stats cards */}
+          <div className="xl:w-[400px] xl:flex-shrink-0 flex flex-col gap-5">
+
+            {/* ── Profile photo ── */}
+            <motion.div
+              className="flex justify-center xl:justify-start"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="relative">
+                {/* Gold ring */}
+                <div
+                  className="absolute -inset-1 rounded-full blur-sm opacity-60"
+                  style={{ background: "linear-gradient(135deg, #C49A3C, #DDB854, #C49A3C)" }}
+                />
+                {/* Photo */}
+                <div className="relative w-44 h-44 md:w-52 md:h-52 rounded-full overflow-hidden border-2" style={{ borderColor: "rgba(196,154,60,0.4)" }}>
+                  <Image
+                    src="/utkarsh.png"
+                    alt="Utkarsh Kumar"
+                    fill
+                    className="object-cover object-top"
+                    priority
+                    sizes="(max-width: 768px) 176px, 208px"
+                  />
+                </div>
+                {/* Online indicator */}
+                <span
+                  className="absolute bottom-3 right-3 w-4 h-4 rounded-full border-2"
+                  style={{ background: "#4ade80", borderColor: "#080808" }}
+                />
+              </div>
+            </motion.div>
+
+            {/* ── Stats grid ── */}
             <div className="grid grid-cols-2 gap-4">
               {STATS.map((s, i) => (
                 <motion.div
                   key={s.label}
-                  className="rounded-2xl p-6 relative overflow-hidden"
+                  className="rounded-2xl p-5 relative overflow-hidden"
                   style={{
                     background: "rgba(14,14,16,0.9)",
                     border: "1px solid rgba(196,154,60,0.12)",
@@ -268,14 +304,13 @@ export default function IdentitySection() {
                   transition={{ duration: 0.65, delay: i * 0.1 + 0.25, ease: [0.22, 1, 0.36, 1] }}
                   whileHover={{ scale: 1.02, borderColor: "rgba(196,154,60,0.3)" }}
                 >
-                  {/* Background glow */}
                   <div
                     className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-20 blur-2xl pointer-events-none"
                     style={{ background: "var(--gold)" }}
                   />
                   <div
                     className="font-extrabold leading-none mb-2 tabular-nums"
-                    style={{ fontSize: "clamp(1.8rem, 3vw, 2.5rem)", letterSpacing: "-0.04em", color: "var(--gold)" }}
+                    style={{ fontSize: "clamp(1.6rem, 2.5vw, 2.2rem)", letterSpacing: "-0.04em", color: "var(--gold)" }}
                   >
                     <Counter to={s.to} suffix={s.suffix} />
                   </div>
@@ -285,19 +320,27 @@ export default function IdentitySection() {
               ))}
             </div>
 
-            {/* Education badge */}
+            {/* ── School logos row ── */}
             <motion.div
-              className="mt-4 rounded-xl px-5 py-4 flex items-center gap-3"
-              style={{ background: "rgba(196,154,60,0.06)", border: "1px solid rgba(196,154,60,0.15)" }}
+              className="rounded-xl px-5 py-4 flex items-center gap-4"
+              style={{ background: "rgba(196,154,60,0.05)", border: "1px solid rgba(196,154,60,0.13)" }}
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.75 }}
             >
-              <span className="text-xl">🎓</span>
+              <span className="text-lg">🎓</span>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0" style={{ background: "#fff", padding: "2px" }}>
+                  <Image src="/manipal.png" alt="MIT Bengaluru" width={28} height={28} className="object-contain w-full h-full" />
+                </div>
+                <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0" style={{ background: "#fff", padding: "2px" }}>
+                  <Image src="/iitg.png" alt="IIT Guwahati" width={28} height={28} className="object-contain w-full h-full" />
+                </div>
+              </div>
               <div>
-                <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>MIT Bangalore</p>
-                <p className="text-xs" style={{ color: "var(--text-3)" }}>Research Collaboration — IIT Guwahati</p>
+                <p className="text-xs font-semibold" style={{ color: "var(--text-1)" }}>MIT Bengaluru · IIT Guwahati</p>
+                <p className="text-[10px]" style={{ color: "var(--text-3)" }}>Dual Degree · 2024–2028</p>
               </div>
             </motion.div>
           </div>
