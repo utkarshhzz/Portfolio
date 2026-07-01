@@ -30,9 +30,9 @@ function Counter({ to, suffix }: { to: number; suffix: string }) {
 
 const STATS = [
   { to: 110, suffix: "M+", label: "Resumes Searched",     sub: "Production · Olumio" },
-  { to: 75,  suffix: "K+", label: "Prize Money Won ₹",    sub: "2× National Hackathons" },
+  { to: 75,  suffix: "K+", label: "Prize Money Won ₹",    sub: "National Hackathons" },
   { to: 3,   suffix: "+",  label: "Research Projects",     sub: "CV · NLP · Multi-agent" },
-  { to: 2,   suffix: "×",  label: "Hackathon Wins",        sub: "Top placement both times" },
+  { to: 5,   suffix: "×",  label: "Hackathon Wins",        sub: "National competitions" },
 ];
 
 // Specialization tags

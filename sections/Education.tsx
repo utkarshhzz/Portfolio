@@ -29,11 +29,7 @@ const EDUCATION: Edu[] = [
     location: "Bengaluru, Karnataka",
     type: "Primary",
     accentColor: "#C49A3C",
-    highlights: [
-      "Specialisation in Data Science & AI — core focus on ML systems, statistical modelling, and large-scale data pipelines",
-      "Active in the AI/ML research club — led workshops on LangGraph and multi-agent orchestration for juniors",
-      "Built production-level projects alongside academics: semantic search at 110M-resume scale",
-    ],
+    highlights: [],
   },
   {
     id: 2,
@@ -46,11 +42,7 @@ const EDUCATION: Edu[] = [
     location: "Guwahati, Assam",
     type: "Concurrent",
     accentColor: "#60a5fa",
-    highlights: [
-      "Concurrent online honours programme by IIT Guwahati — rigorous AI/DS curriculum alongside B.Tech",
-      "Covered advanced ML theory: deep learning, reinforcement learning, statistical inference, NLP",
-      "IEEE GRSS research internship — NASA MODIS satellite crop yield prediction (R² = 0.581)",
-    ],
+    highlights: [],
   },
 ];
 
@@ -158,18 +150,7 @@ function EduCard({ edu, delay }: { edu: Edu; delay: number }) {
           </div>
         </div>
 
-        {/* Highlights */}
-        <ul className="space-y-3">
-          {edu.highlights.map((h, i) => (
-            <li key={i} className="flex gap-3 text-sm leading-relaxed" style={{ color: "var(--text-3)" }}>
-              <span
-                className="flex-shrink-0 w-1.5 h-1.5 rounded-full mt-2"
-                style={{ background: edu.accentColor }}
-              />
-              {h}
-            </li>
-          ))}
-        </ul>
+        {/* Highlights removed for clean look */}
       </div>
     </FadeIn>
   );
@@ -225,7 +206,7 @@ export default function Education() {
             {[
               { label: "CGPA", value: "Ongoing" },
               { label: "Research", value: "IEEE GRSS" },
-              { label: "Hackathons", value: "2× Winner" },
+              { label: "Hackathons", value: "5× Winner" },
             ].map(({ label, value }) => (
               <div key={label} className="text-center">
                 <p className="text-sm font-bold" style={{ color: "var(--gold)" }}>{value}</p>
