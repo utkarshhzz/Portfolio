@@ -20,9 +20,9 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js requires these
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob:",
+      "img-src 'self' data: blob: https://streak-stats.demolab.com https://avatars.githubusercontent.com",
       "media-src 'self'",
-      "connect-src 'self'",
+      "connect-src 'self' https://api.github.com https://leetcode-stats-api.herokuapp.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },
@@ -35,6 +35,10 @@ const nextConfig: NextConfig = {
     formats: ["image/webp", "image/avif"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     minimumCacheTTL: 86400,
+    remotePatterns: [
+      { protocol: "https", hostname: "streak-stats.demolab.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+    ],
   },
   compress: true,
   poweredByHeader: false,   // hides "X-Powered-By: Next.js"
