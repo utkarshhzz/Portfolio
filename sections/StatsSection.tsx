@@ -11,19 +11,6 @@ interface GitHubData {
   public_gists: number;
 }
 
-interface LeetCodeData {
-  totalSolved: number;
-  easySolved: number;
-  mediumSolved: number;
-  hardSolved: number;
-  acceptanceRate: number;
-  ranking: number;
-  totalQuestions: number;
-  totalEasy: number;
-  totalMedium: number;
-  totalHard: number;
-}
-
 /* ─── Animation helper ─────────────────────────────────────────── */
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
@@ -163,35 +150,31 @@ function GitHubCard() {
   );
 }
 
-/* ─── LeetCode Card ────────────────────────────────────────────── */
+/* ─── LeetCode Card (hardcoded real stats — LeetCode has no public API) ── */
 function LeetCodeCard() {
-  const [data, setData] = useState<LeetCodeData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("https://leetcode-stats-api.herokuapp.com/utkarshzz")
-      .then(r => r.json())
-      .then((d: LeetCodeData) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
-
   const ORANGE = "#f97316";
   const EASY   = "#4ade80";
   const MEDIUM = "#fbbf24";
   const HARD   = "#f87171";
 
-  const totalSolved   = data?.totalSolved   ?? 0;
-  const easySolved    = data?.easySolved    ?? 0;
-  const mediumSolved  = data?.mediumSolved  ?? 0;
-  const hardSolved    = data?.hardSolved    ?? 0;
-  const totalEasy     = data?.totalEasy     ?? 800;
-  const totalMedium   = data?.totalMedium   ?? 1700;
-  const totalHard     = data?.totalHard     ?? 700;
+  // Real stats from profile — update these periodically
+  const STATS = {
+    totalSolved:  292,
+    totalQ:       3977,
+    easySolved:   93,  totalEasy:   951,
+    mediumSolved: 166, totalMedium: 2077,
+    hardSolved:   33,  totalHard:   949,
+    ranking:      492248,
+    maxStreak:    36,
+    submissions:  510,   // past year
+    activeDays:   153,
+    badges:       4,
+  };
 
   const difficulties = [
-    { label: "Easy",   solved: easySolved,   total: totalEasy,   color: EASY,   pct: totalEasy   ? (easySolved / totalEasy) * 100   : 0 },
-    { label: "Medium", solved: mediumSolved, total: totalMedium, color: MEDIUM, pct: totalMedium ? (mediumSolved / totalMedium) * 100 : 0 },
-    { label: "Hard",   solved: hardSolved,   total: totalHard,   color: HARD,   pct: totalHard   ? (hardSolved / totalHard) * 100   : 0 },
+    { label: "Easy",   solved: STATS.easySolved,   total: STATS.totalEasy,   color: EASY,   pct: (STATS.easySolved   / STATS.totalEasy)   * 100 },
+    { label: "Medium", solved: STATS.mediumSolved, total: STATS.totalMedium, color: MEDIUM, pct: (STATS.mediumSolved / STATS.totalMedium) * 100 },
+    { label: "Hard",   solved: STATS.hardSolved,   total: STATS.totalHard,   color: HARD,   pct: (STATS.hardSolved   / STATS.totalHard)   * 100 },
   ];
 
   return (
@@ -213,74 +196,57 @@ function LeetCodeCard() {
         </div>
         <div>
           <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: ORANGE }}>LeetCode</p>
-          <a
-            href="https://leetcode.com/u/utkarshzz/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-bold text-white hover:underline"
-          >
+          <a href="https://leetcode.com/u/utkarshzz/" target="_blank" rel="noopener noreferrer"
+            className="text-sm font-bold text-white hover:underline">
             @utkarshzz
           </a>
         </div>
       </div>
 
-      {/* Total solved donut summary */}
-      {loading ? (
-        <div className="h-24 rounded-2xl animate-pulse" style={{ background: "rgba(255,255,255,0.04)" }} />
-      ) : (
-        <div
-          className="rounded-xl px-6 py-5 flex items-center justify-between"
-          style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.12)" }}
-        >
-          <div>
-            <p className="text-4xl font-extrabold tabular-nums" style={{ color: ORANGE }}>
-              {totalSolved}
-            </p>
-            <p className="text-xs uppercase tracking-widest mt-1" style={{ color: "var(--text-3)" }}>Problems Solved</p>
-          </div>
-          {data?.ranking && (
-            <div className="text-right">
-              <p className="text-lg font-bold" style={{ color: "var(--text-1)" }}>
-                #{data.ranking.toLocaleString()}
-              </p>
-              <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "var(--text-3)" }}>Global Rank</p>
-            </div>
-          )}
-          {data?.acceptanceRate && (
-            <div className="text-right">
-              <p className="text-lg font-bold" style={{ color: "#4ade80" }}>
-                {data.acceptanceRate.toFixed(1)}%
-              </p>
-              <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "var(--text-3)" }}>Acceptance</p>
-            </div>
-          )}
+      {/* Total solved hero */}
+      <div
+        className="rounded-xl px-5 py-4 flex items-center justify-between gap-4"
+        style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.12)" }}
+      >
+        <div>
+          <p className="text-4xl font-extrabold tabular-nums" style={{ color: ORANGE }}>
+            {STATS.totalSolved}
+            <span className="text-base font-normal ml-1" style={{ color: "var(--text-3)" }}>/ {STATS.totalQ}</span>
+          </p>
+          <p className="text-[10px] uppercase tracking-widest mt-1" style={{ color: "var(--text-3)" }}>Problems Solved</p>
         </div>
-      )}
+        <div className="text-right">
+          <p className="text-sm font-bold" style={{ color: "var(--text-1)" }}>#{STATS.ranking.toLocaleString()}</p>
+          <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "var(--text-3)" }}>Global Rank</p>
+        </div>
+      </div>
 
-      {/* Difficulty breakdown */}
+      {/* Difficulty breakdown with animated bars */}
       <div className="flex flex-col gap-4">
         {difficulties.map(({ label, solved, total, color, pct }) => (
           <div key={label}>
             <div className="flex justify-between items-center mb-2">
               <span className="text-xs font-semibold" style={{ color }}>{label}</span>
-              <span className="text-xs tabular-nums" style={{ color: "var(--text-3)" }}>
-                {loading ? "—" : `${solved} / ${total}`}
-              </span>
+              <span className="text-xs tabular-nums font-medium" style={{ color: "var(--text-3)" }}>{solved} / {total}</span>
             </div>
-            <Bar pct={loading ? 0 : pct} color={color} />
+            <Bar pct={pct} color={color} />
           </div>
         ))}
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+      {/* Extra stats row */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatPill label="Max Streak" value={`${STATS.maxStreak}d`}  color={ORANGE}  />
+        <StatPill label="Active Days" value={STATS.activeDays}        color="#60a5fa" />
+        <StatPill label="Badges"      value={STATS.badges}            color="#a78bfa" />
+      </div>
 
-      {/* View profile link */}
+      {/* View profile */}
       <a
         href="https://leetcode.com/u/utkarshzz/"
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+        className="mt-auto flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
         style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", color: ORANGE }}
       >
         View LeetCode Profile
@@ -293,6 +259,7 @@ function LeetCodeCard() {
 }
 
 /* ─── Main section ─────────────────────────────────────────────── */
+
 export default function StatsSection() {
   return (
     <section id="stats" className="w-full bg-black section-padding">
