@@ -46,6 +46,14 @@ const ACHIEVEMENTS: Achievement[] = [
     image: "/achievements/lovelace_3rd.jpg",
     accent: "#fbbf24", // amber
   },
+  {
+    id: 5,
+    title: "Hackathon Excellence",
+    position: "Certificate",
+    event: "Award of Recognition",
+    image: "/achievements/Hackathon_certificate.png",
+    accent: "#10b981", // emerald
+  },
 ];
 
 function FadeIn({

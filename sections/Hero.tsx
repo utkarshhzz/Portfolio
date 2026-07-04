@@ -39,26 +39,45 @@ export default function Hero() {
     });
   }, []);
 
-  // ── Preload all frames ────────────────────────────────────────────
+  // ── Preload frames (Optimized for instant load) ──────────────────
   useEffect(() => {
-    let done = 0;
     const imgs: HTMLImageElement[] = [];
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-      img.src = FRAME_PATH(i);
-      img.onload = () => {
-        done++;
-        setLoadPct(Math.round((done / TOTAL_FRAMES) * 100));
-        if (done === TOTAL_FRAMES) setLoaded(true);
-        if (i === 0) drawFrame(0);
+    let loadedCount = 0;
+
+    // Load first frame immediately to display the canvas
+    const firstImg = new Image();
+    firstImg.src = FRAME_PATH(0);
+    firstImg.onload = () => {
+      imgs[0] = firstImg;
+      setLoaded(true); // INSTANT LOAD: Unblock the UI immediately
+      drawFrame(0);
+
+      // Sequentially load the rest in the background to save network bandwidth
+      // and prevent blocking other critical assets
+      let currentLoadIdx = 1;
+      const loadNext = () => {
+        if (currentLoadIdx >= TOTAL_FRAMES) return;
+        const img = new Image();
+        const idx = currentLoadIdx; // capture
+        img.src = FRAME_PATH(idx);
+        img.onload = () => {
+          imgs[idx] = img;
+          loadedCount++;
+          setLoadPct(Math.round((loadedCount / TOTAL_FRAMES) * 100));
+          currentLoadIdx++;
+          loadNext(); // Load next only after current finishes
+        };
+        img.onerror = () => {
+          currentLoadIdx++;
+          loadNext();
+        };
       };
-      img.onerror = () => { 
-        done++; 
-        setLoadPct(Math.round((done / TOTAL_FRAMES) * 100));
-        if (done === TOTAL_FRAMES) setLoaded(true);
-      };
-      imgs[i] = img;
-    }
+      // Start background sequential load
+      loadNext();
+    };
+    
+    firstImg.onerror = () => { setLoaded(true); }; // Fail gracefully
+
     imagesRef.current = imgs;
   }, [drawFrame]);
 
