@@ -1,107 +1,173 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Trophy, Medal, Star } from "lucide-react";
-import { achievements } from "@/data/achievements";
-import SectionHeader from "@/components/shared/SectionHeader";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 
-const placementCfg: Record<string, { icon: typeof Trophy; color: string }> = {
-  "National Winner":       { icon: Trophy, color: "#C49A3C" },
-  "Top 3":                 { icon: Medal,  color: "#A8A8B0" },
-  "Final Round Selection": { icon: Star,   color: "#34d399" },
-};
+interface Achievement {
+  id: number;
+  title: string;
+  position: string;
+  event: string;
+  image: string;
+  accent: string;
+}
 
-export default function Achievements() {
+const ACHIEVEMENTS: Achievement[] = [
+  {
+    id: 1,
+    title: "Hackbricks",
+    position: "2nd Runner Up",
+    event: "National Hackathon",
+    image: "/achievements/Hackbricks_2nd.jpg",
+    accent: "#60a5fa", // blue
+  },
+  {
+    id: 2,
+    title: "Bitflux",
+    position: "Runner Up",
+    event: "National Level Hackathon",
+    image: "/achievements/Bitflux_second.jpg",
+    accent: "#a78bfa", // purple
+  },
+  {
+    id: 3,
+    title: "Ignisia",
+    position: "3rd Place",
+    event: "Tech Fest Hackathon",
+    image: "/achievements/Ignisia_3rd.jpg",
+    accent: "#f43f5e", // rose
+  },
+  {
+    id: 4,
+    title: "Lovelace",
+    position: "3rd Place",
+    event: "Women in Tech / Tech Fest",
+    image: "/achievements/lovelace_3rd.jpg",
+    accent: "#fbbf24", // amber
+  },
+  {
+    id: 5,
+    title: "Hackathon Winner",
+    position: "Finalist / Winner",
+    event: "National Level",
+    image: "/achievements/Hackathon_certificate.png",
+    accent: "#34d399", // emerald
+  },
+];
+
+function FadeIn({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
   return (
-    <section id="achievements" className="section-pad relative"
-      style={{ background: "linear-gradient(180deg, #080808 0%, #0a0a0a 100%)" }}>
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: "linear-gradient(90deg,transparent,rgba(196,154,60,0.12),transparent)" }} />
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
-      <div className="container-lg">
-        <SectionHeader
-          eyebrow="Achievements"
-          title="Winning under pressure"
-          description="Competing at national hackathons, validating technical depth and product thinking against the clock."
-        />
+export default function AchievementsSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
 
-        {/* Summary row */}
-        <div className="grid grid-cols-3 rounded-2xl overflow-hidden mb-12"
-          style={{ border: "1px solid var(--border)" }}>
-          {[
-            { v: "2", label: "Hackathons Won" },
-            { v: "₹95K+", label: "Prize Money" },
-            { v: "1st", label: "National Placement" },
-          ].map((s, i) => (
-            <div key={s.label}
-              className="flex flex-col items-center py-6 px-4"
-              style={{
-                background: "var(--card)",
-                borderRight: i < 2 ? "1px solid var(--border)" : undefined,
-              }}>
-              <span className="text-2xl font-bold mb-1 tabular-nums"
-                style={{ color: "var(--text-1)", letterSpacing: "-0.03em" }}>{s.v}</span>
-              <span className="text-xs text-center" style={{ color: "var(--text-3)" }}>{s.label}</span>
+  return (
+    <section id="achievements" className="w-full bg-black section-padding overflow-hidden relative">
+      {/* Background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none" />
+
+      {/* Header */}
+      <motion.div
+        className="flex flex-col items-center mb-16 relative z-10"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <div className="eyebrow-badge mb-5">🏆 Recognitions</div>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
+          Hackathon Achievements
+        </h2>
+        <p className="text-blue-50 text-sm md:text-base mt-4 text-center max-w-lg">
+          5× National Hackathon Winner. Bringing ideas to life under 24-48 hour pressure and taking home over ₹75K+ in prizes.
+        </p>
+      </motion.div>
+
+      {/* Gallery Grid */}
+      <div ref={containerRef} className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 px-4">
+        {ACHIEVEMENTS.map((item, idx) => (
+          <FadeIn
+            key={item.id}
+            delay={idx * 0.1}
+            className={`group relative rounded-2xl overflow-hidden aspect-[4/3] md:aspect-auto ${
+              idx === 0 || idx === 3 ? "md:row-span-2 md:aspect-[3/4]" : "md:aspect-[4/3]"
+            }`}
+          >
+            {/* Image Container */}
+            <div className="absolute inset-0 bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden flex items-center justify-center">
+              <Image
+                src={item.image}
+                alt={item.title}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300" />
             </div>
-          ))}
-        </div>
 
-        {/* Achievement cards */}
-        <div className="flex flex-col gap-5">
-          {achievements.map((a, i) => {
-            const cfg = placementCfg[a.placement] ?? placementCfg["Final Round Selection"];
-            const Icon = cfg.icon;
-            return (
-              <motion.div
-                key={a.id}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22,1,0.36,1] }}
-                className="glass-card overflow-hidden"
-                style={{ borderLeft: `3px solid ${cfg.color}` }}
+            {/* Content */}
+            <div className="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
+              <div
+                className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
               >
-                <div className="p-6 md:p-7 flex flex-col md:flex-row md:items-center gap-5">
-                  <motion.div
-                    className="flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center"
-                    style={{ background: `${cfg.color}14`, border: `1px solid ${cfg.color}28` }}
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ type: "spring", stiffness: 280, damping: 20, delay: i * 0.1 + 0.1 }}
-                  >
-                    <Icon size={24} style={{ color: cfg.color }} />
-                  </motion.div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="badge"
-                        style={{ background: `${cfg.color}14`, border: `1px solid ${cfg.color}28`, color: cfg.color }}>
-                        {a.placement}
-                      </span>
-                      <span className="text-xs font-mono px-2 py-0.5 rounded"
-                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", color: "var(--text-3)" }}>
-                        {a.year}
-                      </span>
-                    </div>
-                    <h3 className="text-base font-bold mb-0.5"
-                      style={{ color: "var(--text-1)", letterSpacing: "-0.01em" }}>{a.title}</h3>
-                    <p className="text-xs mb-3" style={{ color: cfg.color, opacity: 0.8 }}>{a.event}</p>
-                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>{a.description}</p>
-                  </div>
-
-                  {a.prize && (
-                    <div className="flex-shrink-0 flex flex-col items-center px-5 py-3 rounded-xl"
-                      style={{ background: `${cfg.color}0d`, border: `1px solid ${cfg.color}22` }}>
-                      <span className="text-xl font-bold" style={{ color: cfg.color }}>{a.prize}</span>
-                      <span className="text-[10px] mt-0.5" style={{ color: "var(--text-3)" }}>Prize</span>
-                    </div>
-                  )}
+                <div 
+                  className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 backdrop-blur-md"
+                  style={{ 
+                    background: `${item.accent}30`, 
+                    color: item.accent, 
+                    border: `1px solid ${item.accent}50` 
+                  }}
+                >
+                  {item.position}
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-md">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-neutral-300 font-medium drop-shadow-md">
+                  {item.event}
+                </p>
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+
+        {/* Call to action card filling the 6th slot */}
+        <FadeIn delay={0.5} className="md:col-span-2 lg:col-span-1">
+          <div className="h-full min-h-[200px] rounded-2xl p-8 flex flex-col justify-center items-center text-center border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors duration-300 cursor-pointer group">
+            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+              <span className="text-2xl">🔥</span>
+            </div>
+            <h4 className="text-lg font-bold text-white mb-2">More to come</h4>
+            <p className="text-sm text-neutral-400">
+              Always building, always competing. Stay tuned for the next big win.
+            </p>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );
