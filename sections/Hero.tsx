@@ -49,13 +49,14 @@ export default function Hero() {
       img.onload = () => {
         done++;
         setLoadPct(Math.round((done / TOTAL_FRAMES) * 100));
-        if (done === TOTAL_FRAMES) {
-          setLoaded(true);
-        }
-        // Draw frame 0 immediately once it loads
+        if (done === TOTAL_FRAMES) setLoaded(true);
         if (i === 0) drawFrame(0);
       };
-      img.onerror = () => { done++; };
+      img.onerror = () => { 
+        done++; 
+        setLoadPct(Math.round((done / TOTAL_FRAMES) * 100));
+        if (done === TOTAL_FRAMES) setLoaded(true);
+      };
       imgs[i] = img;
     }
     imagesRef.current = imgs;

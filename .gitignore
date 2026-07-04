@@ -25,13 +25,6 @@
 .env.production.local
 *.env
 
-# Large binary assets — use CDN or Git LFS instead
-# The hero-frames folder is ~57 MB (102 PNG frames).
-# To include in deployment:
-#   Option A: git lfs track "public/hero-frames/*.png"
-#   Option B: upload to a CDN and update FRAME_PATH in Hero.tsx
-public/hero-frames/
-
 # Reference source (not needed in prod)
 3d-portfolio-main/
 
