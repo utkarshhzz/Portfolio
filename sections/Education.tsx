@@ -172,8 +172,7 @@ export default function Education() {
           Education
         </h2>
         <p className="text-blue-50 text-sm md:text-base mt-4 text-center max-w-lg">
-          Pursuing two concurrent degrees — bridging rigorous AI theory
-          with applied engineering at two of India&apos;s top institutions.
+          Mastering the mathematics of AI while engineering the systems of tomorrow across two premier institutes.
         </p>
       </motion.div>
 

@@ -29,7 +29,7 @@ function Counter({ to, suffix }: { to: number; suffix: string }) {
 }
 
 const STATS = [
-  { to: 110, suffix: "M+", label: "Resumes Searched",     sub: "Production · Olumio" },
+  { to: 10,  suffix: "+",  label: "Projects Scaled",      sub: "Deployed to production" },
   { to: 75,  suffix: "K+", label: "Prize Money Won ₹",    sub: "National Hackathons" },
   { to: 3,   suffix: "+",  label: "Research Projects",     sub: "CV · NLP · Multi-agent" },
   { to: 5,   suffix: "×",  label: "Hackathon Wins",        sub: "National competitions" },
@@ -188,12 +188,14 @@ export default function IdentitySection() {
 
             {/* Bio */}
             <FadeUp delay={0.24}>
+              <h2 className="text-3xl md:text-5xl font-bold leading-tight drop-shadow-md mb-4">
+                Architecting the <span style={{ color: "var(--gold)" }}>Future</span> of Data.
+              </h2>
               <p
-                className="text-base md:text-lg leading-relaxed mb-8 max-w-lg"
-                style={{ color: "var(--text-3)" }}
+                className="text-base md:text-lg max-w-xl leading-relaxed mb-8"
+                style={{ color: "var(--text-2)" }}
               >
-                I build production-grade AI systems — not demos. From 110M-resume semantic search
-                to multi-agent RAG pipelines, I bridge the gap between research and reality.
+                Engineering intelligent systems that scale. I transform complex data into autonomous AI solutions, blending rigorous research with production-ready architecture.
               </p>
             </FadeUp>
 

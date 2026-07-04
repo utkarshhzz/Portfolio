@@ -46,14 +46,6 @@ const ACHIEVEMENTS: Achievement[] = [
     image: "/achievements/lovelace_3rd.jpg",
     accent: "#fbbf24", // amber
   },
-  {
-    id: 5,
-    title: "Hackathon Winner",
-    position: "Finalist / Winner",
-    event: "National Level",
-    image: "/achievements/Hackathon_certificate.png",
-    accent: "#34d399", // emerald
-  },
 ];
 
 function FadeIn({
@@ -108,14 +100,12 @@ export default function AchievementsSection() {
       </motion.div>
 
       {/* Gallery Grid */}
-      <div ref={containerRef} className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10 px-4">
+      <div ref={containerRef} className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 px-4">
         {ACHIEVEMENTS.map((item, idx) => (
           <FadeIn
             key={item.id}
-            delay={idx * 0.1}
-            className={`group relative rounded-2xl overflow-hidden aspect-[4/3] md:aspect-auto ${
-              idx === 0 || idx === 3 ? "md:row-span-2 md:aspect-[3/4]" : "md:aspect-[4/3]"
-            }`}
+            delay={idx * 0.15}
+            className="group relative rounded-2xl overflow-hidden aspect-[4/3]"
           >
             {/* Image Container */}
             <div className="absolute inset-0 bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden flex items-center justify-center">
@@ -155,19 +145,6 @@ export default function AchievementsSection() {
             </div>
           </FadeIn>
         ))}
-
-        {/* Call to action card filling the 6th slot */}
-        <FadeIn delay={0.5} className="md:col-span-2 lg:col-span-1">
-          <div className="h-full min-h-[200px] rounded-2xl p-8 flex flex-col justify-center items-center text-center border border-dashed border-white/20 bg-white/5 hover:bg-white/10 transition-colors duration-300 cursor-pointer group">
-            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-              <span className="text-2xl">🔥</span>
-            </div>
-            <h4 className="text-lg font-bold text-white mb-2">More to come</h4>
-            <p className="text-sm text-neutral-400">
-              Always building, always competing. Stay tuned for the next big win.
-            </p>
-          </div>
-        </FadeIn>
       </div>
     </section>
   );
