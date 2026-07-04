@@ -63,7 +63,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="preload"
-          href="/hero-frames/Portfolio_utk_000.png"
+          href="/hero-frames/Portfolio_utk_000.png?v=2"
           as="image"
           type="image/png"
         />

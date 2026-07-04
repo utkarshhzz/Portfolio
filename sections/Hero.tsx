@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const TOTAL_FRAMES = 102;
 const FRAME_PATH = (n: number) =>
-  `/hero-frames/Portfolio_utk_${String(n).padStart(3, "0")}.png`;
+  `/hero-frames/Portfolio_utk_${String(n).padStart(3, "0")}.png?v=2`;
 
 // Taller scrub so the sequence plays out fully before page scrolls away
 const SCRUB_HEIGHT = "350vh";
