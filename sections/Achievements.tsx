@@ -116,11 +116,12 @@ export default function AchievementsSection() {
             className="group relative rounded-2xl overflow-hidden aspect-[4/3]"
           >
             {/* Image Container */}
-            <div className="absolute inset-0 bg-neutral-900 border border-white/10 rounded-2xl overflow-hidden flex items-center justify-center">
+            <div className="absolute inset-0 bg-neutral-900 border border-white/10 rounded-2xl flex items-center justify-center overflow-hidden">
               <Image
                 src={item.image}
                 alt={item.title}
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
               
