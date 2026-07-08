@@ -42,7 +42,7 @@ const PROJECTS: Project[] = [
     tagline: "Production-grade Semantic Search",
     impact: "Top 10 from 110M+ resumes in under 10 seconds",
     description:
-      "Production-grade semantic search system surfacing the best candidates from a corpus of 110M+ resumes. Built with Azure AI Search, OpenAI embeddings, and a GPT-powered match rationale layer that explains every ranking in plain English.",
+      "Production-grade semantic search system surfacing the best candidates from a corpus of 110M+ resumes. Built with Azure AI Search, OpenAI embeddings, and a GPT-powered match rationale layer. Optimized vector retrieval pipelines to reduce enterprise search time by 80% while significantly minimizing API costs.",
     tech: ["Python", "FastAPI", "Azure AI Search", "OpenAI", "PostgreSQL"],
     image: "/project1.png",
     githubUrl: "https://github.com/utkarshhzz",

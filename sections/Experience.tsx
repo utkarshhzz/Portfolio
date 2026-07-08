@@ -18,7 +18,7 @@ const EXPERIENCES = [
       "Achieved top-10 candidate retrieval in under 10 seconds using Azure AI Search + vector indexing",
       "Integrated OpenAI Embeddings for semantic resume-to-job-description matching",
       "Built GPT-powered explanation layer that generates natural-language match rationales per candidate",
-      "Designed semantic retrieval pipeline reducing irrelevant candidate noise by over 60%",
+      "Optimized vector retrieval pipelines to reduce enterprise search time by 80% while significantly minimizing API costs",
     ],
   },
   {

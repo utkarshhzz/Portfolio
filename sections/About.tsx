@@ -48,7 +48,7 @@ export default function About() {
           <div className="flex flex-col gap-6">
             {[
               "I'm an AI Systems Engineer studying at MIT Bangalore and IIT Guwahati. I'm driven by one specific obsession: making AI research actually work in production. Most AI projects die in the gap between prototype and product — I've spent my career learning to close that gap.",
-              "At Provaantech, I built a candidate discovery engine that searches 110 million resumes semantically — returning results in under 10 seconds using Azure AI Search and OpenAI embeddings. That's not a research demo. That's production, at scale. At IEEE GRSS, I analyzed 15 years of NASA satellite data and built rainfall prediction models that outperformed established climatological baselines on every metric.",
+              "At Provaantech, I built a candidate discovery engine that searches 110 million resumes semantically — returning results in under 10 seconds. By optimizing the retrieval pipeline, I drastically reduced API costs and sourcing time. That's not a research demo. That's production, at scale. At IEEE GRSS, I analyzed 15 years of NASA satellite data and built rainfall prediction models that outperformed established climatological baselines on every metric.",
               "I believe the best engineers design systems that survive real-world conditions. Every line of code I write carries that conviction.",
             ].map((para, i) => (
               <motion.p
