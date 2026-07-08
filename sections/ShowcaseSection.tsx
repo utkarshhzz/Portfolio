@@ -39,7 +39,7 @@ const PROJECTS: Project[] = [
   {
     id: 1,
     name: "AI Candidate Discovery Engine",
-    tagline: "Internship @ Provaantech (Olumio)",
+    tagline: "Production-grade Semantic Search",
     impact: "Top 10 from 110M+ resumes in under 10 seconds",
     description:
       "Production-grade semantic search system surfacing the best candidates from a corpus of 110M+ resumes. Built with Azure AI Search, OpenAI embeddings, and a GPT-powered match rationale layer that explains every ranking in plain English.",
@@ -53,8 +53,8 @@ const PROJECTS: Project[] = [
   {
     id: 2,
     name: "CrowdWisdom.AI",
-    tagline: "Multi-Agent Orchestration · Hackathon Winner",
-    impact: "Won ₹50K — National Hackathon, 200+ teams",
+    tagline: "Multi-Agent Orchestration",
+    impact: "Collective intelligence platform",
     description:
       "Multi-agent AI platform for collective intelligence. LangGraph agents debate, synthesise, and deliver decisions with real-time voice output — built end-to-end in 36 hours.",
     tech: ["Python", "LangGraph", "FastAPI", "OpenAI", "TTS"],

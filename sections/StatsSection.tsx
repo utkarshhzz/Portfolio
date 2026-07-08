@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { AreaChart, Area, ResponsiveContainer, Tooltip } from "recharts";
 
 /* ─── Types ────────────────────────────────────────────────────── */
 interface GitHubData {
@@ -9,6 +10,11 @@ interface GitHubData {
   followers: number;
   following: number;
   public_gists: number;
+}
+
+interface ChartData {
+  date: string;
+  count: number;
 }
 
 /* ─── Animation helper ─────────────────────────────────────────── */
@@ -55,19 +61,55 @@ function StatPill({ label, value, color }: { label: string; value: string | numb
   );
 }
 
+/* ─── Tooltip ─────────────────────────────────────────────────── */
+const CustomTooltip = ({ active, payload, label, unit }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-[#111] border border-white/10 rounded-md px-3 py-2 shadow-xl">
+        <p className="text-[10px] uppercase tracking-widest text-white/50 mb-1">{label}</p>
+        <p className="text-sm font-bold text-white">{payload[0].value} {unit}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 /* ─── GitHub Card ──────────────────────────────────────────────── */
 function GitHubCard() {
   const [data, setData] = useState<GitHubData | null>(null);
+  const [chartData, setChartData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
+  const GOLD = "#C49A3C";
 
   useEffect(() => {
-    fetch("https://api.github.com/users/utkarshhzz")
-      .then(r => r.json())
-      .then((d: GitHubData) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+    Promise.allSettled([
+      fetch("https://api.github.com/users/utkarshhzz").then(r => r.ok ? r.json() : null),
+      fetch("https://github-contributions-api.deno.dev/utkarshhzz.json").then(r => r.ok ? r.json() : null)
+    ])
+    .then(([profileRes, contribsRes]) => {
+      const profile = profileRes.status === "fulfilled" ? profileRes.value : null;
+      const contribs = contribsRes.status === "fulfilled" ? contribsRes.value : null;
+      
+      // Even if rate limited, preserve what we can
+      if (profile && profile.public_repos !== undefined) {
+        setData(profile);
+      }
+      
+      // Process 6 months (180 days) of contributions safely
+      if (contribs && contribs.contributions) {
+        const allDays = contribs.contributions.flat() || [];
+        const sorted = allDays.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const last180 = sorted.slice(-180);
+        
+        setChartData(last180.map((d: any) => ({
+          date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          count: d.contributionCount || 0
+        })));
+      }
+      
+      setLoading(false);
+    });
   }, []);
-
-  const GOLD = "#C49A3C";
 
   return (
     <div
@@ -76,7 +118,6 @@ function GitHubCard() {
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(196,154,60,0.4)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 48px rgba(196,154,60,0.08)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(196,154,60,0.18)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
     >
-      {/* Ambient glow */}
       <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(196,154,60,0.07)" }} />
 
       {/* Header */}
@@ -88,168 +129,50 @@ function GitHubCard() {
         </div>
         <div>
           <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: GOLD }}>GitHub</p>
-          <a
-            href="https://github.com/utkarshhzz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-bold text-white hover:underline"
-          >
+          <a href="https://github.com/utkarshhzz" target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white hover:underline">
             @utkarshhzz
           </a>
         </div>
       </div>
 
       {/* Stats grid */}
-      {loading ? (
-        <div className="grid grid-cols-2 gap-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-16 rounded-2xl animate-pulse" style={{ background: "rgba(255,255,255,0.04)" }} />
-          ))}
-        </div>
-      ) : data ? (
-        <div className="grid grid-cols-2 gap-3">
-          <StatPill label="Public Repos"  value={data.public_repos}  color={GOLD} />
-          <StatPill label="Followers"     value={data.followers}     color="#4ade80" />
-          <StatPill label="Following"     value={data.following}     color="#60a5fa" />
-          <StatPill label="Public Gists"  value={data.public_gists}  color="#a78bfa" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3">
-          <StatPill label="Public Repos"  value="—" color={GOLD} />
-          <StatPill label="Followers"     value="—" color="#4ade80" />
-          <StatPill label="Following"     value="—" color="#60a5fa" />
-          <StatPill label="Public Gists"  value="—" color="#a78bfa" />
-        </div>
-      )}
+      <div className="grid grid-cols-2 gap-3">
+        <StatPill label="Public Repos"  value={data?.public_repos ?? "35"}  color={GOLD} />
+        <StatPill label="Followers"     value={data?.followers ?? "13"}     color="#4ade80" />
+        <StatPill label="Following"     value={data?.following ?? "1"}     color="#60a5fa" />
+        <StatPill label="Public Gists"  value={data?.public_gists ?? "0"}  color="#a78bfa" />
+      </div>
 
-      {/* Streak image widget */}
-      <div className="rounded-xl overflow-hidden" style={{ background: "#0a0a0c" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={`https://streak-stats.demolab.com/?user=utkarshhzz&theme=transparent&hide_border=true&background=0a0a0c&stroke=C49A3C&ring=C49A3C&fire=DDB854&currStreakNum=FFFFFF&sideNums=FFFFFF&currStreakLabel=C49A3C&sideLabels=C49A3C&dates=556070&type=png`}
-          alt="GitHub Streak Stats"
-          className="w-full h-auto"
-          loading="lazy"
-        />
+      {/* Live Chart Widget */}
+      <div className="rounded-xl overflow-hidden p-4 flex flex-col gap-2" style={{ background: "#0a0a0c" }}>
+        <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2">Live Contributions (Last 6 Months)</p>
+        <div className="h-32 w-full relative">
+          {loading ? (
+            <div className="absolute inset-0 animate-pulse rounded bg-white/5" />
+          ) : chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorGithub" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={GOLD} stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor={GOLD} stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="date" hide />
+                <YAxis hide domain={['dataMin', 'dataMax + 2']} />
+                <Tooltip content={<CustomTooltip unit="commits" />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
+                <Area type="monotone" dataKey="count" stroke={GOLD} strokeWidth={2} fillOpacity={1} fill="url(#colorGithub)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-xs text-white/30">Data unavailable</div>
+          )}
+        </div>
       </div>
 
       {/* View profile link */}
-      <a
-        href="https://github.com/utkarshhzz"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-auto flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-        style={{ background: "rgba(196,154,60,0.08)", border: "1px solid rgba(196,154,60,0.2)", color: GOLD }}
-      >
+      <a href="https://github.com/utkarshhzz" target="_blank" rel="noopener noreferrer" className="mt-auto flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5" style={{ background: "rgba(196,154,60,0.08)", border: "1px solid rgba(196,154,60,0.2)", color: GOLD }}>
         View GitHub Profile
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
-    </div>
-  );
-}
-
-/* ─── LeetCode Card (hardcoded real stats — LeetCode has no public API) ── */
-function LeetCodeCard() {
-  const ORANGE = "#f97316";
-  const EASY   = "#4ade80";
-  const MEDIUM = "#fbbf24";
-  const HARD   = "#f87171";
-
-  // Real stats from profile — update these periodically
-  const STATS = {
-    totalSolved:  292,
-    totalQ:       3977,
-    easySolved:   93,  totalEasy:   951,
-    mediumSolved: 166, totalMedium: 2077,
-    hardSolved:   33,  totalHard:   949,
-    ranking:      492248,
-    maxStreak:    36,
-    submissions:  510,   // past year
-    activeDays:   153,
-    badges:       4,
-  };
-
-  const difficulties = [
-    { label: "Easy",   solved: STATS.easySolved,   total: STATS.totalEasy,   color: EASY,   pct: (STATS.easySolved   / STATS.totalEasy)   * 100 },
-    { label: "Medium", solved: STATS.mediumSolved, total: STATS.totalMedium, color: MEDIUM, pct: (STATS.mediumSolved / STATS.totalMedium) * 100 },
-    { label: "Hard",   solved: STATS.hardSolved,   total: STATS.totalHard,   color: HARD,   pct: (STATS.hardSolved   / STATS.totalHard)   * 100 },
-  ];
-
-  return (
-    <div
-      className="rounded-2xl p-7 h-full flex flex-col gap-6 relative overflow-hidden transition-all duration-300"
-      style={{ background: "rgba(10,10,12,0.95)", border: "1px solid rgba(249,115,22,0.18)" }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(249,115,22,0.4)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 48px rgba(249,115,22,0.08)"; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(249,115,22,0.18)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
-    >
-      {/* Ambient glow */}
-      <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(249,115,22,0.06)" }} />
-
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(249,115,22,0.1)", border: "1px solid rgba(249,115,22,0.2)" }}>
-          <svg viewBox="0 0 24 24" fill={ORANGE} width="20" height="20">
-            <path d="M13.483 0a1.374 1.374 0 00-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 00-1.209 2.104 5.35 5.35 0 00-.125 2.227 5.465 5.465 0 00.35 1.938 5.337 5.337 0 001.047 1.7l4.468 4.58a1.37 1.37 0 001.977.014l1.434-1.428a1.373 1.373 0 00.009-1.932L9.118 17.4l-1.42-1.457a2.604 2.604 0 01-.763-1.861 2.56 2.56 0 01.246-1.094 2.59 2.59 0 01.717-.928L12 8.73l4.1-4.214a1.374 1.374 0 00-.02-1.94L14.68.47a1.374 1.374 0 00-1.197-.47zm4.026 5.918L14.16 9.418l3.324 3.41a5.355 5.355 0 010 7.502l-.006.005c-.05.05-.099.094-.15.14l-.005.003a5.306 5.306 0 01-7.49-.022l-1.42-1.457 2.86-2.86 1.42 1.457a1.374 1.374 0 001.963.014l.005-.005a1.374 1.374 0 000-1.94l-3.324-3.41 3.347-3.437a1.374 1.374 0 000-1.943l-.007-.007a1.374 1.374 0 00-1.94.008z"/>
-          </svg>
-        </div>
-        <div>
-          <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: ORANGE }}>LeetCode</p>
-          <a href="https://leetcode.com/u/utkarshzz/" target="_blank" rel="noopener noreferrer"
-            className="text-sm font-bold text-white hover:underline">
-            @utkarshzz
-          </a>
-        </div>
-      </div>
-
-      {/* Total solved hero */}
-      <div
-        className="rounded-xl px-5 py-4 flex items-center justify-between gap-4"
-        style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.12)" }}
-      >
-        <div>
-          <p className="text-4xl font-extrabold tabular-nums" style={{ color: ORANGE }}>
-            {STATS.totalSolved}
-            <span className="text-base font-normal ml-1" style={{ color: "var(--text-3)" }}>/ {STATS.totalQ}</span>
-          </p>
-          <p className="text-[10px] uppercase tracking-widest mt-1" style={{ color: "var(--text-3)" }}>Problems Solved</p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm font-bold" style={{ color: "var(--text-1)" }}>#{STATS.ranking.toLocaleString()}</p>
-          <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "var(--text-3)" }}>Global Rank</p>
-        </div>
-      </div>
-
-      {/* Difficulty breakdown with animated bars */}
-      <div className="flex flex-col gap-4">
-        {difficulties.map(({ label, solved, total, color, pct }) => (
-          <div key={label}>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-semibold" style={{ color }}>{label}</span>
-              <span className="text-xs tabular-nums font-medium" style={{ color: "var(--text-3)" }}>{solved} / {total}</span>
-            </div>
-            <Bar pct={pct} color={color} />
-          </div>
-        ))}
-      </div>
-
-      {/* Extra stats row */}
-      <div className="grid grid-cols-3 gap-3">
-        <StatPill label="Max Streak" value={`${STATS.maxStreak}d`}  color={ORANGE}  />
-        <StatPill label="Active Days" value={STATS.activeDays}        color="#60a5fa" />
-        <StatPill label="Badges"      value={STATS.badges}            color="#a78bfa" />
-      </div>
-
-      {/* View profile */}
-      <a
-        href="https://leetcode.com/u/utkarshzz/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-auto flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
-        style={{ background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.2)", color: ORANGE }}
-      >
-        View LeetCode Profile
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
         </svg>
@@ -263,7 +186,6 @@ function LeetCodeCard() {
 export default function StatsSection() {
   return (
     <section id="stats" className="w-full bg-black section-padding">
-      {/* Header */}
       <motion.div
         className="flex flex-col items-center mb-14"
         initial={{ opacity: 0, y: 24 }}
@@ -276,17 +198,13 @@ export default function StatsSection() {
           By the Numbers
         </h2>
         <p className="text-blue-50 text-sm md:text-base mt-4 text-center max-w-md">
-          Real-time data pulled directly from GitHub &amp; LeetCode.
+          Real-time data pulled directly from GitHub.
         </p>
       </motion.div>
 
-      {/* Side-by-side cards */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 gap-8 max-w-2xl mx-auto">
         <FadeIn delay={0}>
           <GitHubCard />
-        </FadeIn>
-        <FadeIn delay={0.1}>
-          <LeetCodeCard />
         </FadeIn>
       </div>
     </section>

@@ -22,9 +22,9 @@ const ABILITIES = [
     accent: "#61DAFB",
   },
   {
-    emoji: "🧩",
-    title: "DSA & Problem Solving",
-    desc: "Active on LeetCode with consistent problem-solving practice. Strong foundations in algorithms and data structures applied to real engineering.",
+    emoji: "⚙️",
+    title: "Backend Architecture",
+    desc: "Designing resilient microservices and APIs. Focused on scalable data models, low-latency search, and robust deployment pipelines.",
     accent: "#FF9D00",
   },
 ];

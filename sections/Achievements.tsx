@@ -103,7 +103,7 @@ export default function AchievementsSection() {
           Hackathon Achievements
         </h2>
         <p className="text-blue-50 text-sm md:text-base mt-4 text-center max-w-lg">
-          5× National Hackathon Winner. Bringing ideas to life under 24-48 hour pressure and taking home over ₹75K+ in prizes.
+          5+ Hackathon Wins. Bringing ideas to life under 24-48 hour pressure and taking home over ₹1 Lakh+ in prizes.
         </p>
       </motion.div>
 

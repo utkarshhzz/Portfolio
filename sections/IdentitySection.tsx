@@ -30,7 +30,7 @@ function Counter({ to, suffix }: { to: number; suffix: string }) {
 
 const STATS = [
   { to: 10,  suffix: "+",  label: "Projects Scaled",      sub: "Deployed to production" },
-  { to: 75,  suffix: "K+", label: "Prize Money Won ₹",    sub: "National Hackathons" },
+  { to: 1,  suffix: " Lakh+", label: "Prize Money Won ₹",    sub: "National Hackathons" },
   { to: 3,   suffix: "+",  label: "Research Projects",     sub: "CV · NLP · Multi-agent" },
   { to: 5,   suffix: "×",  label: "Hackathon Wins",        sub: "National competitions" },
 ];
@@ -114,24 +114,7 @@ export default function IdentitySection() {
 
       <div className="max-w-[1200px] mx-auto px-6 md:px-14">
 
-        {/* ── STATUS BADGE ── */}
-        <FadeUp delay={0}>
-          <div className="flex items-center gap-2 mb-8">
-            <span
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border"
-              style={{ background: "rgba(74,222,128,0.06)", borderColor: "rgba(74,222,128,0.2)", color: "#4ade80" }}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#4ade80" }} />
-                <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#4ade80" }} />
-              </span>
-              Open to opportunities
-            </span>
-            <span className="hidden md:block text-xs font-medium" style={{ color: "var(--text-3)" }}>
-              MIT Bangalore · IIT Guwahati
-            </span>
-          </div>
-        </FadeUp>
+
 
         {/* ── MAIN HEADLINE — two-col on XL ── */}
         <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-12 xl:gap-20">
@@ -322,29 +305,7 @@ export default function IdentitySection() {
               ))}
             </div>
 
-            {/* ── School logos row ── */}
-            <motion.div
-              className="rounded-xl px-5 py-4 flex items-center gap-4"
-              style={{ background: "rgba(196,154,60,0.05)", border: "1px solid rgba(196,154,60,0.13)" }}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.75 }}
-            >
-              <span className="text-lg">🎓</span>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0" style={{ background: "#fff", padding: "2px" }}>
-                  <Image src="/manipal.png" alt="MIT Bengaluru" width={28} height={28} className="object-contain w-full h-full" />
-                </div>
-                <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0" style={{ background: "#fff", padding: "2px" }}>
-                  <Image src="/iitg.png" alt="IIT Guwahati" width={28} height={28} className="object-contain w-full h-full" />
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-semibold" style={{ color: "var(--text-1)" }}>MIT Bengaluru · IIT Guwahati</p>
-                <p className="text-[10px]" style={{ color: "var(--text-3)" }}>Dual Degree · 2024–2028</p>
-              </div>
-            </motion.div>
+
           </div>
         </div>
       </div>

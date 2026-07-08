@@ -171,9 +171,7 @@ export default function Education() {
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
           Education
         </h2>
-        <p className="text-blue-50 text-sm md:text-base mt-4 text-center max-w-lg">
-          Mastering the mathematics of AI while engineering the systems of tomorrow across two premier institutes.
-        </p>
+
       </motion.div>
 
       {/* Dual cards — side by side on xl */}
@@ -183,38 +181,7 @@ export default function Education() {
         ))}
       </div>
 
-      {/* Bottom combined badge */}
-      <FadeIn delay={0.3} className="mt-10 max-w-6xl mx-auto">
-        <div
-          className="rounded-2xl px-8 py-6 flex flex-wrap items-center justify-between gap-4"
-          style={{
-            background: "rgba(196,154,60,0.04)",
-            border: "1px solid rgba(196,154,60,0.15)",
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">⚡</span>
-            <div>
-              <p className="text-sm font-bold text-white">Dual Degree Student</p>
-              <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>
-                Simultaneously enrolled at MIT Bengaluru + IIT Guwahati · 2024–2028
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            {[
-              { label: "CGPA", value: "Ongoing" },
-              { label: "Research", value: "IEEE GRSS" },
-              { label: "Hackathons", value: "5× Winner" },
-            ].map(({ label, value }) => (
-              <div key={label} className="text-center">
-                <p className="text-sm font-bold" style={{ color: "var(--gold)" }}>{value}</p>
-                <p className="text-[10px] uppercase tracking-widest mt-0.5" style={{ color: "var(--text-3)" }}>{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </FadeIn>
+
     </section>
   );
 }
