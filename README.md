@@ -31,7 +31,7 @@ Press **⌘K / Ctrl+K** anywhere for the command palette. Section ids and links 
 
 ## Contact form
 
-The form sends through [Formspree](https://formspree.io) when `NEXT_PUBLIC_FORMSPREE_ID` is set (Vercel → Project → Settings → Environment Variables, value is the ID from `https://formspree.io/f/<ID>`). Without it, the form opens the visitor's email app with the message pre-filled.
+The form posts to [Formspree](https://formspree.io) form `mjyyzabe` (set in `sections/Contact.tsx`; override with the `NEXT_PUBLIC_FORMSPREE_ID` env var in Vercel). Submissions arrive at the email registered on Formspree. If a submission fails, the visitor is offered a pre-filled email instead.
 
 ## Develop
 

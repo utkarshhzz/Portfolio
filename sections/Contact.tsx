@@ -8,10 +8,11 @@ import SectionHeading from "@/components/shared/SectionHeading";
 import { LINKS } from "@/lib/sections";
 
 /**
- * Set NEXT_PUBLIC_FORMSPREE_ID (e.g. "xyzabcd" from https://formspree.io/f/xyzabcd) in Vercel
- * to receive messages in your inbox directly. Without it the form opens the visitor's mail app.
+ * Formspree form (https://formspree.io/f/mjyyzabe). Form IDs are public by design, so it is safe
+ * to keep in the client bundle. NEXT_PUBLIC_FORMSPREE_ID overrides it if set in Vercel.
+ * If Formspree fails, the form falls back to opening the visitor's mail app.
  */
-const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID;
+const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID || "mjyyzabe";
 
 const CONTACT_LINKS = [
   { label: "LinkedIn", sub: "Let's connect", href: LINKS.linkedin, icon: <LinkedinIcon size={17} /> },
