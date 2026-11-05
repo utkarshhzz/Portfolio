@@ -1,350 +1,170 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Search,
-  User,
-  Briefcase,
-  FolderKanban,
-  Trophy,
-  Zap,
-  Mail,
-  X,
-  ChevronRight,
+  Search, User, Briefcase, FolderKanban, Trophy, Wrench, GraduationCap,
+  Mail, X, ChevronRight, Download, Code2, Activity, Copy, Home,
 } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/shared/BrandIcons";
 import { cn } from "@/lib/utils";
+import { LINKS, scrollToSection } from "@/lib/sections";
 
 interface CommandItem {
   id: string;
   label: string;
   description?: string;
   icon: React.ReactNode;
-  action: () => void;
+  run: () => void;
   category: string;
 }
 
-interface CommandPaletteProps {
+interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
-  const [query, setQuery] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    el?.scrollIntoView({ behavior: "smooth" });
-    onClose();
-  };
-
-  const allItems: CommandItem[] = [
+function buildItems(close: () => void): CommandItem[] {
+  const nav = (id: string) => () => { close(); scrollToSection(id); };
+  const open = (url: string) => () => { close(); window.open(url, "_blank", "noopener,noreferrer"); };
+  return [
+    { id: "hero", label: "Home", description: "Back to the top", icon: <Home size={15} />, run: nav("hero"), category: "Navigate" },
+    { id: "identity", label: "About", description: "Who I am", icon: <User size={15} />, run: nav("identity"), category: "Navigate" },
+    { id: "projects", label: "Projects", description: "Featured builds", icon: <FolderKanban size={15} />, run: nav("projects"), category: "Navigate" },
+    { id: "experience", label: "Experience", description: "Internships and research", icon: <Briefcase size={15} />, run: nav("experience"), category: "Navigate" },
+    { id: "achievements", label: "Achievements", description: "Hackathon podiums", icon: <Trophy size={15} />, run: nav("achievements"), category: "Navigate" },
+    { id: "skills", label: "Skills", description: "Technical toolkit", icon: <Wrench size={15} />, run: nav("skills"), category: "Navigate" },
+    { id: "education", label: "Education", description: "MIT Bengaluru · IIT Guwahati", icon: <GraduationCap size={15} />, run: nav("education"), category: "Navigate" },
+    { id: "github-stats", label: "GitHub activity", description: "Live contribution graph", icon: <Activity size={15} />, run: nav("github"), category: "Navigate" },
+    { id: "contact", label: "Contact", description: "Send a message", icon: <Mail size={15} />, run: nav("contact"), category: "Navigate" },
+    { id: "github", label: "GitHub", description: "github.com/utkarshhzz", icon: <GithubIcon size={15} />, run: open(LINKS.github), category: "Links" },
+    { id: "linkedin", label: "LinkedIn", description: "linkedin.com/in/utkarsh-kumar", icon: <LinkedinIcon size={15} />, run: open(LINKS.linkedin), category: "Links" },
+    { id: "leetcode", label: "LeetCode", description: "350+ problems solved", icon: <Code2 size={15} />, run: open(LINKS.leetcode), category: "Links" },
+    { id: "resume", label: "Open resume", description: "PDF", icon: <Download size={15} />, run: open(LINKS.resume), category: "Actions" },
     {
-      id: "hero",
-      label: "Home",
-      description: "Back to the top",
-      icon: <User size={15} />,
-      action: () => scrollTo("hero"),
-      category: "Navigation",
-    },
-    {
-      id: "about",
-      label: "About",
-      description: "Learn about Utkarsh",
-      icon: <User size={15} />,
-      action: () => scrollTo("about"),
-      category: "Navigation",
-    },
-    {
-      id: "experience",
-      label: "Experience",
-      description: "Work history and internships",
-      icon: <Briefcase size={15} />,
-      action: () => scrollTo("experience"),
-      category: "Navigation",
-    },
-    {
-      id: "projects",
-      label: "Projects",
-      description: "Featured builds",
-      icon: <FolderKanban size={15} />,
-      action: () => scrollTo("projects"),
-      category: "Navigation",
-    },
-    {
-      id: "achievements",
-      label: "Achievements",
-      description: "Hackathon wins and recognitions",
-      icon: <Trophy size={15} />,
-      action: () => scrollTo("achievements"),
-      category: "Navigation",
-    },
-    {
-      id: "skills",
-      label: "Skills",
-      description: "Technical expertise",
-      icon: <Zap size={15} />,
-      action: () => scrollTo("skills"),
-      category: "Navigation",
-    },
-    {
-      id: "testimonials",
-      label: "Testimonials",
-      description: "What people say",
-      icon: <Zap size={15} />,
-      action: () => scrollTo("testimonials"),
-      category: "Navigation",
-    },
-    {
-      id: "contact",
-      label: "Contact",
-      description: "Get in touch",
-      icon: <Mail size={15} />,
-      action: () => scrollTo("contact"),
-      category: "Navigation",
-    },
-
-    {
-      id: "github",
-      label: "GitHub",
-      description: "github.com/utkarshhzz",
-      icon: <GithubIcon size={15} />,
-      action: () => {
-        window.open("https://github.com/utkarshhzz", "_blank");
-        onClose();
-      },
-      category: "Links",
-    },
-    {
-      id: "linkedin",
-      label: "LinkedIn",
-      description: "linkedin.com/in/utkarsh-kumar-801703321",
-      icon: <LinkedinIcon size={15} />,
-      action: () => {
-        window.open("https://www.linkedin.com/in/utkarsh-kumar-801703321/", "_blank");
-        onClose();
-      },
-      category: "Links",
-    },
-    {
-      id: "leetcode",
-      label: "LeetCode",
-      description: "leetcode.com/u/utkarshzz",
-      icon: <Zap size={15} />,
-      action: () => {
-        window.open("https://leetcode.com/u/utkarshzz/", "_blank");
-        onClose();
-      },
-      category: "Links",
-    },
-    {
-      id: "resume",
-      label: "Download Resume",
-      description: "Get the PDF",
-      icon: <ChevronRight size={15} />,
-      action: () => {
-        window.open("/resume.pdf", "_blank");
-        onClose();
-      },
+      id: "copy-email",
+      label: "Copy email address",
+      description: LINKS.email,
+      icon: <Copy size={15} />,
+      run: () => { navigator.clipboard?.writeText(LINKS.email).catch(() => {}); close(); },
       category: "Actions",
     },
   ];
+}
 
-  const filtered = query
-    ? allItems.filter(
-        (item) =>
-          item.label.toLowerCase().includes(query.toLowerCase()) ||
-          item.description?.toLowerCase().includes(query.toLowerCase())
-      )
-    : allItems;
+function PaletteBody({ onClose }: { onClose: () => void }) {
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState(0);
 
-  // Group by category
-  const grouped = filtered.reduce(
-    (acc, item) => {
-      if (!acc[item.category]) acc[item.category] = [];
-      acc[item.category].push(item);
-      return acc;
-    },
-    {} as Record<string, CommandItem[]>
-  );
+  const items = useMemo(() => buildItems(onClose), [onClose]);
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? items.filter((i) => i.label.toLowerCase().includes(q) || i.description?.toLowerCase().includes(q))
+    : items;
 
-  // Flat list for keyboard nav
-  const flatItems = Object.values(grouped).flat();
+  const categories = [...new Set(filtered.map((i) => i.category))];
 
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [query]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setQuery("");
-      setSelectedIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, flatItems.length - 1));
-      }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.max(i - 1, 0));
-      }
-      if (e.key === "Enter" && flatItems[selectedIndex]) {
-        flatItems[selectedIndex].action();
-      }
+      else if (e.key === "ArrowDown") { e.preventDefault(); setSelected((i) => Math.min(i + 1, filtered.length - 1)); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setSelected((i) => Math.max(i - 1, 0)); }
+      else if (e.key === "Enter") filtered[selected]?.run();
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [isOpen, flatItems, selectedIndex, onClose]);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [filtered, selected, onClose]);
 
+  return (
+    <>
+      <div className="flex items-center gap-3 border-b border-white/[0.08] px-4 py-3">
+        <Search size={16} className="text-[#a1a1aa]" />
+        <input
+          autoFocus
+          type="text"
+          placeholder="Jump to a section or link…"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setSelected(0); }}
+          className="flex-1 bg-transparent text-sm text-white placeholder-[#71717a] outline-none focus-visible:outline-none"
+          aria-label="Search commands"
+          role="combobox"
+          aria-expanded="true"
+          aria-controls="cmd-results"
+          aria-activedescendant={filtered[selected] ? `cmd-${filtered[selected].id}` : undefined}
+        />
+        <button onClick={onClose} className="rounded p-1 text-[#a1a1aa] transition-colors hover:text-white" aria-label="Close">
+          <X size={14} />
+        </button>
+      </div>
+
+      <div id="cmd-results" role="listbox" className="max-h-80 overflow-y-auto py-2">
+        {categories.map((cat) => (
+          <div key={cat} role="group" aria-label={cat}>
+            <p className="px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.15em] text-[#71717a]">{cat}</p>
+            {filtered.filter((i) => i.category === cat).map((item) => {
+              const idx = filtered.indexOf(item);
+              const isSel = idx === selected;
+              return (
+                <button
+                  key={item.id}
+                  id={`cmd-${item.id}`}
+                  role="option"
+                  aria-selected={isSel}
+                  onClick={item.run}
+                  onMouseMove={() => setSelected(idx)}
+                  className={cn("flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors", isSel && "bg-white/[0.06]")}
+                >
+                  <span className={cn("flex-shrink-0", isSel ? "text-[var(--gold)]" : "text-[#71717a]")}>{item.icon}</span>
+                  <span className="min-w-0">
+                    <span className={cn("block truncate text-sm font-medium", isSel ? "text-white" : "text-[#d4d4d8]")}>{item.label}</span>
+                    {item.description && <span className="block truncate text-xs text-[#71717a]">{item.description}</span>}
+                  </span>
+                  {isSel && <ChevronRight size={14} className="ml-auto flex-shrink-0 text-[var(--gold)]" />}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+        {filtered.length === 0 && (
+          <p className="px-4 py-8 text-center text-sm text-[#71717a]">No results for &ldquo;{query}&rdquo;</p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-4 border-t border-white/[0.06] px-4 py-2 font-mono text-[10px] text-[#71717a]">
+        <span>↑↓ navigate</span>
+        <span>↵ select</span>
+        <span>esc close</span>
+      </div>
+    </>
+  );
+}
+
+export default function CommandPalette({ isOpen, onClose }: Props) {
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[200]"
-            style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(4px)" }}
+            className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm"
             onClick={onClose}
           />
-
-          {/* Panel */}
           <motion.div
             key="panel"
             initial={{ opacity: 0, scale: 0.96, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -10 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed top-[20%] left-1/2 -translate-x-1/2 z-[201] w-full max-w-lg rounded-xl overflow-hidden shadow-2xl"
-            style={{
-              background: "#0f0f0f",
-              border: "1px solid rgba(255,255,255,0.1)",
-              boxShadow: "0 25px 60px rgba(0,0,0,0.8)",
-            }}
+            className="fixed left-1/2 top-[18%] z-[201] w-[min(32rem,calc(100vw-2rem))] -translate-x-1/2 overflow-hidden rounded-xl border border-white/10 bg-[#0f0f0f] shadow-[0_25px_60px_rgba(0,0,0,0.8)]"
             role="dialog"
             aria-modal="true"
             aria-label="Command palette"
           >
-            {/* Search input */}
-            <div
-              className="flex items-center gap-3 px-4 py-3 border-b"
-              style={{ borderBottomColor: "rgba(255,255,255,0.08)" }}
-            >
-              <Search size={16} style={{ color: "#a1a1aa" }} />
-              <input
-                ref={inputRef}
-                id="command-palette-input"
-                type="text"
-                placeholder="Search commands..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-white placeholder-[#a1a1aa] outline-none"
-              />
-              <button
-                onClick={onClose}
-                className="p-1 rounded text-[#a1a1aa] hover:text-white transition-colors"
-                aria-label="Close"
-              >
-                <X size={14} />
-              </button>
-            </div>
-
-            {/* Results */}
-            <div className="max-h-80 overflow-y-auto py-2">
-              {Object.entries(grouped).map(([category, items]) => (
-                <div key={category}>
-                  <p
-                    className="px-4 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase"
-                    style={{ color: "#52525b" }}
-                  >
-                    {category}
-                  </p>
-                  {items.map((item) => {
-                    const globalIndex = flatItems.findIndex(
-                      (fi) => fi.id === item.id
-                    );
-                    const isSelected = globalIndex === selectedIndex;
-                    return (
-                      <button
-                        key={item.id}
-                        id={`cmd-item-${item.id}`}
-                        onClick={item.action}
-                        onMouseEnter={() => setSelectedIndex(globalIndex)}
-                        className={cn(
-                          "w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors",
-                          isSelected
-                            ? "bg-white/[0.06]"
-                            : "hover:bg-white/[0.03]"
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            "flex-shrink-0",
-                            isSelected ? "" : "text-[#52525b]"
-                          )}
-                        >
-                          {item.icon}
-                        </span>
-                        <div className="min-w-0">
-                          <p
-                            className={cn(
-                              "text-sm font-medium truncate",
-                              isSelected ? "text-white" : "text-[#d4d4d8]"
-                            )}
-                          >
-                            {item.label}
-                          </p>
-                          {item.description && (
-                            <p className="text-xs text-[#52525b] truncate">
-                              {item.description}
-                            </p>
-                          )}
-                        </div>
-                        {isSelected && (
-                          <ChevronRight
-                            size={14}
-                            className="ml-auto flex-shrink-0"
-                            style={{ color: "var(--gold)" }}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-              {flatItems.length === 0 && (
-                <p className="px-4 py-8 text-sm text-center text-[#52525b]">
-                  No results for &ldquo;{query}&rdquo;
-                </p>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div
-              className="flex items-center gap-4 px-4 py-2 border-t text-[10px]"
-              style={{
-                borderTopColor: "rgba(255,255,255,0.06)",
-                color: "#52525b",
-              }}
-            >
-              <span>↑↓ Navigate</span>
-              <span>↵ Select</span>
-              <span>Esc Close</span>
-            </div>
+            <PaletteBody onClose={onClose} />
           </motion.div>
         </>
       )}

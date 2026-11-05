@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local reference template (git-ignored, not part of the app)
+    "3d-portfolio-main/**",
   ]),
 ]);
 

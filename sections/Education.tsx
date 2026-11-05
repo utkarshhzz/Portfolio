@@ -2,186 +2,99 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { MapPin } from "lucide-react";
+import SectionHeading from "@/components/shared/SectionHeading";
 
-interface Edu {
-  id: number;
-  institution: string;
-  shortName: string;
-  logo: string;
-  degree: string;
-  field: string;
-  period: string;
-  location: string;
-  type: string; // "Primary" | "Concurrent"
-  accentColor: string;
-  highlights: string[];
-}
-
-const EDUCATION: Edu[] = [
+const EDUCATION = [
   {
-    id: 1,
+    id: "mit",
     institution: "Manipal Institute of Technology, Bengaluru",
-    shortName: "MIT Bengaluru",
     logo: "/manipal.png",
+    logoAlt: "Manipal Institute of Technology logo",
     degree: "B.Tech",
     field: "Computer Science & Engineering (Data Science)",
     period: "2024 – 2028",
+    gpa: "9.3",
     location: "Bengaluru, Karnataka",
-    type: "Primary",
-    accentColor: "#C49A3C",
-    highlights: [],
+    type: "Primary degree",
+    accent: "#C49A3C",
   },
   {
-    id: 2,
-    institution: "Indian Institute of Technology, Guwahati",
-    shortName: "IIT Guwahati",
+    id: "iitg",
+    institution: "Indian Institute of Technology Guwahati",
     logo: "/iitg.png",
+    logoAlt: "IIT Guwahati logo",
     degree: "B.Sc (Honours)",
     field: "Artificial Intelligence & Data Science",
     period: "2024 – 2028",
+    gpa: "8.3",
     location: "Guwahati, Assam",
-    type: "Concurrent",
-    accentColor: "#60a5fa",
-    highlights: [],
+    type: "Concurrent degree",
+    accent: "#60a5fa",
   },
 ];
 
-function FadeIn({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-function EduCard({ edu, delay }: { edu: Edu; delay: number }) {
-  return (
-    <FadeIn delay={delay} className="relative">
-      {/* Card */}
-      <div
-        className="relative rounded-2xl overflow-hidden p-8 md:p-10 transition-all duration-300"
-        style={{
-          background: "rgba(10,10,12,0.95)",
-          border: `1px solid ${edu.accentColor}22`,
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.borderColor = `${edu.accentColor}45`;
-          (e.currentTarget as HTMLDivElement).style.boxShadow = `0 8px 48px ${edu.accentColor}12`;
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLDivElement).style.borderColor = `${edu.accentColor}22`;
-          (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-        }}
-      >
-        {/* Ambient top glow */}
-        <div
-          className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl pointer-events-none"
-          style={{ background: `${edu.accentColor}0d` }}
-        />
-
-        {/* Top row — logo + meta */}
-        <div className="flex items-start gap-5 mb-7">
-          {/* Logo */}
-          <div
-            className="flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden"
-            style={{ background: "rgba(255,255,255,0.96)", padding: "8px" }}
-          >
-            <Image
-              src={edu.logo}
-              alt={edu.shortName}
-              width={48}
-              height={48}
-              className="object-contain w-full h-full"
-            />
-          </div>
-
-          {/* Institution info */}
-          <div className="flex-1 min-w-0">
-            {/* Type badge */}
-            <span
-              className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase mb-2"
-              style={{ background: `${edu.accentColor}18`, color: edu.accentColor, border: `1px solid ${edu.accentColor}30` }}
-            >
-              {edu.type} Degree
-            </span>
-            <h3 className="text-lg md:text-xl font-bold text-white leading-snug">
-              {edu.institution}
-            </h3>
-            <p className="text-sm mt-1" style={{ color: "var(--text-3)" }}>
-              📍 {edu.location}
-            </p>
-          </div>
-        </div>
-
-        {/* Degree block */}
-        <div
-          className="rounded-xl px-5 py-4 mb-7"
-          style={{ background: `${edu.accentColor}0a`, border: `1px solid ${edu.accentColor}1a` }}
-        >
-          <div className="flex flex-wrap items-center gap-3">
-            <div>
-              <p className="text-xs font-semibold tracking-widest uppercase mb-0.5" style={{ color: edu.accentColor }}>
-                {edu.degree}
-              </p>
-              <p className="text-base font-bold text-white">{edu.field}</p>
-            </div>
-            <div
-              className="ml-auto text-right flex-shrink-0"
-            >
-              <p className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>
-                {edu.period}
-              </p>
-              <p className="text-xs mt-0.5" style={{ color: "var(--text-3)" }}>In Progress</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Highlights removed for clean look */}
-      </div>
-    </FadeIn>
-  );
-}
-
 export default function Education() {
   return (
-    <section id="education" className="w-full bg-black section-padding">
-      {/* Header */}
-      <motion.div
-        className="flex flex-col items-center mb-16"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="eyebrow-badge mb-5">🎓 Academic Background</div>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
-          Education
-        </h2>
+    <section id="education" className="section-padding">
+      <SectionHeading
+        index="06"
+        eyebrow="Academics"
+        title="Education"
+        sub="Two degrees in parallel: computer science at MIT Bengaluru and AI & data science at IIT Guwahati."
+      />
 
-      </motion.div>
+      <ul className="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-2">
+        {EDUCATION.map((e, i) => (
+          <motion.li
+            key={e.id}
+            className="relative overflow-hidden rounded-2xl border bg-[rgba(10,10,12,0.95)] p-7 transition-shadow duration-300 md:p-9"
+            style={{ borderColor: `${e.accent}26` }}
+            whileHover={{ boxShadow: `0 8px 48px ${e.accent}14` }}
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div aria-hidden className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full blur-3xl" style={{ background: `${e.accent}10` }} />
 
-      {/* Dual cards — side by side on xl */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        {EDUCATION.map((edu, i) => (
-          <EduCard key={edu.id} edu={edu} delay={i * 0.12} />
+            <div className="mb-7 flex items-start gap-5">
+              <div className="grid size-16 flex-shrink-0 place-items-center overflow-hidden rounded-2xl bg-white/95 p-2">
+                <Image src={e.logo} alt={e.logoAlt} width={48} height={48} className="h-full w-full object-contain" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span
+                  className="mb-2 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+                  style={{ background: `${e.accent}18`, color: e.accent, border: `1px solid ${e.accent}30` }}
+                >
+                  {e.type}
+                </span>
+                <h3 className="text-lg font-bold leading-snug text-white md:text-xl">{e.institution}</h3>
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-[var(--text-3)]">
+                  <MapPin size={13} /> {e.location}
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="flex flex-wrap items-end justify-between gap-4 rounded-xl px-5 py-4"
+              style={{ background: `${e.accent}0a`, border: `1px solid ${e.accent}1a` }}
+            >
+              <div className="min-w-0">
+                <p className="mb-0.5 text-xs font-semibold uppercase tracking-widest" style={{ color: e.accent }}>{e.degree}</p>
+                <p className="text-base font-bold text-white">{e.field}</p>
+                <p className="mt-1 text-xs text-[var(--text-3)]">{e.period} · in progress</p>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-extrabold leading-none tracking-tight tabular-nums" style={{ color: e.accent }}>
+                  {e.gpa}<span className="text-base font-semibold text-[var(--text-3)]">/10</span>
+                </p>
+                <p className="mt-1 text-xs text-[var(--text-3)]">GPA</p>
+              </div>
+            </div>
+          </motion.li>
         ))}
-      </div>
-
-
+      </ul>
     </section>
   );
 }

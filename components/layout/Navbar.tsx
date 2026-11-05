@@ -1,148 +1,157 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Command, Download, Menu, X } from "lucide-react";
+import { useActiveSection } from "@/lib/hooks/useActiveSection";
+import { LINKS, SECTIONS, SECTION_IDS, scrollToSection } from "@/lib/sections";
 
-const NAV_LINKS = [
-  { name: "Work",         href: "projects" },
-  { name: "Experience",   href: "experience" },
-  { name: "Skills",       href: "skills" },
-  { name: "Testimonials", href: "testimonials" },
-];
+const NAV = SECTIONS.filter((s) => s.nav);
 
-export default function Navbar() {
-  const [visible,    setVisible]    = useState(false); // hidden during hero
-  const [scrolled,   setScrolled]   = useState(false);
+export default function Navbar({ onOpenPalette }: { onOpenPalette: () => void }) {
+  const [visible, setVisible] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const active = useActiveSection(SECTION_IDS);
 
+  // Hidden while the cinematic hero scrubs; appears once it has played out.
   useEffect(() => {
     const update = () => {
-      // Hero section is 350vh tall — navbar only appears after it ends
-      const heroEl = document.getElementById("hero");
-      const heroBottom = heroEl
-        ? heroEl.offsetTop + heroEl.offsetHeight - window.innerHeight
-        : window.innerHeight * 2.5;
-
-      const pastHero = window.scrollY >= heroBottom;
-      setVisible(pastHero);
-      setScrolled(pastHero); // dark bg from the moment it appears
+      const hero = document.getElementById("hero");
+      const end = hero ? hero.offsetTop + hero.offsetHeight - window.innerHeight * 1.05 : 0;
+      setVisible(window.scrollY >= end);
     };
-
     update();
     window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
+    window.addEventListener("resize", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, []);
 
-  const scrollTo = (id: string) => {
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
+
+  const go = (id: string) => {
     setMobileOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    scrollToSection(id);
   };
+
+  const shown = visible || mobileOpen;
 
   return (
     <motion.header
-      className={`navbar ${scrolled ? "scrolled" : "not-scrolled"}`}
-      animate={{ opacity: visible ? 1 : 0, y: visible ? 0 : -12 }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      style={{ pointerEvents: visible ? "auto" : "none" }}
+      className="navbar"
+      initial={false}
+      animate={{ opacity: shown ? 1 : 0, y: shown ? 0 : -16 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      style={{ pointerEvents: shown ? "auto" : "none" }}
+      inert={!shown}
     >
-      <div className="inner">
-
-        {/* Logo — full name */}
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6">
         <button
-          className="logo flex items-center"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          type="button"
+          onClick={() => go("identity")}
+          className="flex items-center gap-2.5 font-semibold tracking-tight text-[var(--text-1)]"
         >
-          <span className="text-sm md:text-base font-semibold tracking-tight" style={{ color: "var(--text-1)" }}>
-            Utkarsh Kumar
+          <span aria-hidden className="grid size-8 place-items-center rounded-lg border border-[var(--gold-border)] bg-[var(--gold-dim)] font-mono text-[13px] text-[var(--gold)]">
+            UK
           </span>
+          <span className="text-[15px]">Utkarsh Kumar</span>
         </button>
 
-        {/* Desktop nav */}
-        <nav className="desktop" aria-label="Main navigation">
-          <ul>
-            {NAV_LINKS.map(link => (
-              <li key={link.name}>
-                <span onClick={() => scrollTo(link.href)}>{link.name}</span>
-                <div className="underline" />
+        <nav aria-label="Main" className="hidden lg:block">
+          <ul className="flex items-center gap-7">
+            {NAV.map((s) => (
+              <li key={s.id}>
+                <button
+                  type="button"
+                  className="nav-link"
+                  aria-current={active === s.id}
+                  onClick={() => go(s.id)}
+                >
+                  {s.label}
+                </button>
               </li>
             ))}
           </ul>
         </nav>
 
-        {/* Right side: Resume + Contact */}
-        <div className="flex items-center gap-3">
-          <a
-            href="/resume.pdf"
-            download="Utkarsh_Kumar_Resume.pdf"
-            className="hidden md:flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-lg border transition-colors duration-200"
-            style={{ borderColor: "rgba(196,154,60,0.3)", color: "var(--gold)", background: "rgba(196,154,60,0.06)" }}
-          >
-            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 10l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Resume
-          </a>
-
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => scrollTo("contact")}
-            className="contact-btn hidden md:flex"
+            type="button"
+            onClick={onOpenPalette}
+            className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 font-mono text-[11px] text-[var(--text-3)] transition-colors hover:border-white/20 hover:text-[var(--text-1)]"
+            aria-label="Open command palette"
           >
-            <div className="inner">
-              <span>Contact me</span>
-            </div>
+            <Command size={12} /> K
           </button>
-
-          {/* Mobile hamburger */}
-          <button
-            className="flex lg:hidden p-2 rounded-lg text-white-50 bg-black-100 border border-black-50"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
+          <a
+            href={LINKS.resume}
+            download="Utkarsh_Kumar_Resume.pdf"
+            className="hidden md:inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors hover:bg-[rgba(196,154,60,0.12)]"
+            style={{ borderColor: "var(--gold-border)", color: "var(--gold)" }}
           >
-            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              {mobileOpen
-                ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                : <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />}
-            </svg>
+            <Download size={13} /> Resume
+          </a>
+          <button
+            type="button"
+            onClick={() => go("contact")}
+            className="hidden md:inline-flex rounded-lg bg-[var(--text-1)] px-4 py-2 text-xs font-semibold text-black transition-colors hover:bg-white"
+          >
+            Contact me
+          </button>
+          <button
+            type="button"
+            className="icon-btn lg:hidden"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+          >
+            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile dropdown */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="lg:hidden mx-4 mt-2 mb-4 rounded-xl overflow-hidden border border-black-50 bg-black-100"
+          <motion.nav
+            id="mobile-menu"
+            aria-label="Mobile"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.22 }}
+            className="lg:hidden overflow-hidden"
           >
-            {NAV_LINKS.map(link => (
-              <button
-                key={link.name}
-                onClick={() => scrollTo(link.href)}
-                className="flex w-full items-center px-5 py-3.5 text-sm font-medium text-white-50 hover:text-white border-b border-black-50/50 transition-colors last:border-0"
-              >
-                {link.name}
-              </button>
-            ))}
-            <div className="px-4 py-3 flex gap-2">
-              <a
-                href="/resume.pdf"
-                download="Utkarsh_Kumar_Resume.pdf"
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold text-center border transition-colors"
-                style={{ borderColor: "rgba(196,154,60,0.3)", color: "var(--gold)", background: "rgba(196,154,60,0.08)" }}
-              >
-                Resume
-              </a>
-              <button
-                onClick={() => scrollTo("contact")}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold bg-white text-black transition-colors"
-              >
-                Contact me
-              </button>
-            </div>
-          </motion.div>
+            <ul className="flex flex-col pb-3">
+              {[...NAV, SECTIONS.find((s) => s.id === "contact")!].map((s) => (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => go(s.id)}
+                    aria-current={active === s.id}
+                    className="flex w-full items-center justify-between border-b border-white/[0.06] py-3.5 text-left text-[15px] font-medium text-[var(--text-2)] aria-[current=true]:text-[var(--gold)]"
+                  >
+                    {s.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <a
+              href={LINKS.resume}
+              download="Utkarsh_Kumar_Resume.pdf"
+              className="mb-4 flex items-center justify-center gap-2 rounded-lg border py-3 text-sm font-semibold"
+              style={{ borderColor: "var(--gold-border)", color: "var(--gold)" }}
+            >
+              <Download size={15} /> Download resume
+            </a>
+          </motion.nav>
         )}
       </AnimatePresence>
     </motion.header>

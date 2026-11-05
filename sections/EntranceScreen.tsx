@@ -83,7 +83,7 @@ export default function EntranceScreen({ onDone }: Props) {
           <div className="text-center px-6 max-w-2xl z-10">
             <motion.p
               className="mb-5 text-[11px] tracking-[0.35em] uppercase"
-              style={{ color: "rgba(196,154,60,0.45)" }}
+              style={{ color: "rgba(196,154,60,0.7)" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase === "hold" ? 1 : 0 }}
               transition={{ duration: 0.7, delay: 0.4 }}
@@ -122,7 +122,7 @@ export default function EntranceScreen({ onDone }: Props) {
 
             <motion.p
               className="mt-6 text-sm font-medium tracking-wide"
-              style={{ color: "rgba(68,68,64,0.7)" }}
+              style={{ color: "rgba(239,239,234,0.55)" }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase === "hold" ? 1 : 0 }}
               transition={{ duration: 0.6, delay: 0.9 }}
@@ -146,12 +146,12 @@ export default function EntranceScreen({ onDone }: Props) {
           {/* Skip hint */}
           <motion.p
             className="absolute bottom-6 right-6 text-[10px] tracking-[0.18em] uppercase"
-            style={{ color: "rgba(68,68,64,0.45)" }}
+            style={{ color: "rgba(239,239,234,0.35)" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.9 }}
           >
-            Click to skip
+            Tap or press any key to skip
           </motion.p>
         </motion.div>
       )}

@@ -1,205 +1,174 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import Image from "next/image";
+import { motion, useScroll } from "framer-motion";
+import { CalendarDays } from "lucide-react";
+import SectionHeading from "@/components/shared/SectionHeading";
 
-const EXPERIENCES = [
+interface Role {
+  id: string;
+  company: string;
+  monogram: string;
+  role: string;
+  period: string;
+  type: string;
+  accent: string;
+  metric: { value: string; label: string };
+  highlights: string[];
+  tech: string[];
+  links?: { label: string; href: string }[];
+}
+
+const ROLES: Role[] = [
   {
-    id: 1,
-    company: "Provaantech (Olumio)",
+    id: "provaantech",
+    company: "Provaantech",
+    monogram: "PT",
     role: "AI / Software Engineering Intern",
-    period: "Apr 2026 – Sep 2026",
+    period: "Apr 2026 – Aug 2026",
     type: "Internship",
-    logo: "/exp1.png",
-    tech: ["OpenAI", "Azure AI Search", "FastAPI", "PostgreSQL"],
+    accent: "#C49A3C",
+    metric: { value: "110M+", label: "records searched, top-10 in < 10 s" },
     highlights: [
-      "Architected an AI Candidate Discovery Engine operating over a corpus of 110M+ resumes",
-      "Achieved top-10 candidate retrieval in under 10 seconds using Azure AI Search + vector indexing",
-      "Integrated OpenAI Embeddings for semantic resume-to-job-description matching",
-      "Built GPT-powered explanation layer that generates natural-language match rationales per candidate",
-      "Optimized vector retrieval pipelines to reduce enterprise search time by 80% while significantly minimizing API costs",
+      "Gathered requirements with the product team and designed an AI Candidate Discovery Engine that indexes and searches 110M+ records, returning top-10 ranked matches in under 10 seconds.",
+      "Architected a hybrid retrieval pipeline (OpenAI embeddings, Azure AI Search, BM25, semantic re-ranking), balancing accuracy, cost and latency.",
+      "Wrote unit and integration tests for retrieval and ranking, and integrated GPT-4o-mini to explain candidate fit; iterated through code review with senior engineers.",
+    ],
+    tech: ["Python", "FastAPI", "Azure AI Search", "OpenAI", "BM25", "PostgreSQL"],
+    links: [
+      { label: "Code", href: "https://github.com/utkarshhzz/JDeesiee" },
+      { label: "Demo", href: "https://youtu.be/85gfMJ7TME0" },
     ],
   },
   {
-    id: 2,
+    id: "avss",
     company: "AVSS Tech",
+    monogram: "AV",
     role: "Software Engineering Intern",
     period: "Dec 2025 – Jan 2026",
     type: "Internship",
-    logo: "/exp2.png",
-    tech: ["Python", "OpenCV", "Computer Vision", "Flask"],
+    accent: "#60a5fa",
+    metric: { value: "92%+", label: "recognition accuracy, 35% lower latency" },
     highlights: [
-      "Built an internal microservice for facial recognition and attendance logging",
-      "Achieved real-time detection with 89% accuracy on live camera feeds",
-      "Optimized inference pipeline for edge GPU deployment, reducing latency by 40%",
+      "Built a real-time face recognition pipeline for enterprise access control with 92%+ accuracy, from requirements through testing and deployment.",
+      "Cut inference latency by 35% with adaptive frame batching, frame skipping and hardware-level optimisations.",
+      "Designed a modular detection-and-verification pipeline with graceful fallbacks for edge-case inputs, backed by test cases for production reliability.",
     ],
+    tech: ["Python", "OpenCV", "PyTorch", "Computer Vision", "Flask"],
   },
   {
-    id: 3,
-    company: "IEEE GRSS Research",
-    role: "ML Research Intern",
-    period: "2025 – Present",
-    type: "Research",
-    logo: "/exp3.png",
-    tech: ["Python", "XGBoost", "Satellite Data", "NumPy"],
+    id: "ieee-grss",
+    company: "IEEE GRSS · MIT Bengaluru",
+    monogram: "GR",
+    role: "Researcher",
+    period: "Jan 2025",
+    type: "Research · IGARSS 2026",
+    accent: "#4ade80",
+    metric: { value: "R² 0.581", label: "across 210 weather stations" },
     highlights: [
-      "Analyzed 15 years of NASA MODIS satellite imagery for crop yield prediction in Rajasthan",
-      "Built XGBoost regression pipeline achieving R² = 0.581, beating all baseline models",
-      "Engineered spectral vegetation indices (NDVI, EVI) as predictive features",
-      "Published findings as part of IEEE GRSS research initiative",
+      "Engineered a two-stage hurdle stacking ensemble for rainfall prediction across 210 weather stations using 15 years of NASA POWER reanalysis data.",
+      "Reached R² = 0.581, MAE = 2.17 mm and Skill Score = 0.510 with leakage-free chronological cross-validation and out-of-fold meta-learning.",
+      "Presented the results for publication at IEEE IGARSS 2026.",
     ],
+    tech: ["Python", "XGBoost", "LightGBM", "Scikit-Learn", "NASA POWER"],
+    links: [{ label: "Code", href: "https://github.com/utkarshhzz/Rainfall_pattern_analysis" }],
   },
 ];
 
-// GlowCard component (mouse-tracking conic glow — exact reference)
-function GlowCard({ exp }: { exp: typeof EXPERIENCES[0] }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const angle = Math.atan2(
-      e.clientY - rect.top  - rect.height / 2,
-      e.clientX - rect.left - rect.width  / 2
-    ) * (180 / Math.PI);
-    el.style.setProperty("--start", String((angle + 360) % 360 + 60));
-  };
-
-  return (
-    <div
-      ref={ref}
-      onMouseMove={onMouseMove}
-      className="card card-border rounded-xl p-6 mb-5 break-inside-avoid-column relative"
-    >
-      <div className="glow" />
-
-      {/* Stars */}
-      <div className="star-rating">
-        {[...Array(5)].map((_, i) => (
-          <Image key={i} src="/gold-star.png" alt="★" width={16} height={16} className="object-contain" />
-        ))}
-      </div>
-
-      {/* Review text */}
-      <p className="text-white-50 text-sm leading-relaxed mb-5">
-        &ldquo;{exp.role} at {exp.company} — {exp.period}&rdquo;
-      </p>
-
-      {/* Company logo + tech pills */}
-      <div className="flex items-center gap-3">
-        <div className="size-10 rounded-full border border-black-50 bg-black-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-          <Image src={exp.logo} alt={exp.company} width={28} height={28} className="object-contain" />
-        </div>
-        <div className="flex flex-col">
-          <p className="text-sm font-semibold text-white">{exp.company}</p>
-          <div className="flex flex-wrap gap-1 mt-1">
-            {exp.tech.slice(0, 3).map(t => (
-              <span key={t} className="text-[10px] px-2 py-0.5 rounded-full bg-black-200 border border-black-50 text-blue-50">
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function ExperienceSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start 80%", "end 60%"],
-  });
-  const lineScaleY = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const listRef = useRef<HTMLOListElement>(null);
+  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 75%", "end 60%"] });
 
   return (
-    <section
-      id="experience"
-      ref={sectionRef}
-      className="w-full bg-black section-padding"
-    >
-      {/* Header */}
-      <motion.div
-        className="flex flex-col items-center mb-20"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="eyebrow-badge mb-5">💼 Career Overview</div>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
-          Professional Work Experience
-        </h2>
-      </motion.div>
+    <section id="experience" className="section-padding">
+      <SectionHeading
+        index="02"
+        eyebrow="Career"
+        title="Experience"
+        sub="Two engineering internships and a published research project, all shipped against real constraints."
+      />
 
-      {/* Experience cards */}
-      <div className="flex flex-col gap-32 relative">
-
-        {/* Vertical spine line (desktop) */}
-        <div
-          className="absolute top-0 h-full hidden xl:block overflow-hidden"
-          style={{ left: "calc(33.33% + 2rem)", width: "2px", background: "rgba(255,255,255,0.05)" }}
-        >
-          <motion.div
-            className="w-full gradient-line"
-            style={{ height: "100%", scaleY: lineScaleY, transformOrigin: "top" }}
-          />
+      <ol ref={listRef} className="relative mx-auto flex max-w-5xl flex-col gap-10 md:gap-14">
+        {/* Spine */}
+        <div aria-hidden className="absolute bottom-2 left-[19px] top-2 w-px overflow-hidden bg-white/[0.06] md:left-[27px]">
+          <motion.div className="gradient-line h-full w-full origin-top" style={{ scaleY: scrollYProgress }} />
         </div>
 
-        {EXPERIENCES.map((exp, i) => (
-          <motion.div
-            key={exp.id}
-            className="exp-card-wrapper"
-            initial={{ opacity: 0, y: 48 }}
+        {ROLES.map((r) => (
+          <motion.li
+            key={r.id}
+            className="relative pl-14 md:pl-20"
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+            transition={{ duration: 0.7, ease: EASE }}
           >
-            {/* LEFT: GlowCard (xl:w-1/3) */}
-            <div className="xl:w-[30%]">
-              <GlowCard exp={exp} />
-            </div>
+            {/* Node */}
+            <span
+              aria-hidden
+              className="absolute left-0 top-1 grid size-10 place-items-center rounded-full border bg-[#0e0e10] font-mono text-[11px] font-bold md:size-14 md:text-sm"
+              style={{ borderColor: `${r.accent}55`, color: r.accent, boxShadow: `0 0 0 6px #080808` }}
+            >
+              {r.monogram}
+            </span>
 
-            {/* RIGHT: Timeline + responsibilities (xl:w-2/3) */}
-            <div className="xl:w-[65%] flex items-start gap-6 xl:gap-10">
-              {/* Timeline logo circle */}
-              <div className="flex-shrink-0 relative z-10 flex flex-col items-center">
-                <div className="timeline-logo">
-                  <Image
-                    src={exp.logo}
-                    alt={exp.company}
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
+            <article className="grid gap-6 rounded-2xl border border-white/[0.07] bg-[rgba(14,14,16,0.7)] p-6 transition-colors hover:border-white/[0.14] md:p-8 lg:grid-cols-[260px_1fr] lg:gap-10">
+              {/* Meta column */}
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: r.accent }}>{r.company}</p>
+                  <h3 className="mt-1 text-xl font-bold leading-snug text-white md:text-2xl">{r.role}</h3>
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--text-3)]">
+                    <CalendarDays size={13} /> {r.period} · {r.type}
+                  </p>
                 </div>
+                <div className="rounded-xl p-4" style={{ background: `${r.accent}0d`, border: `1px solid ${r.accent}26` }}>
+                  <p className="text-2xl font-extrabold tracking-tight tabular-nums" style={{ color: r.accent }}>
+                    {r.metric.value}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-snug text-[var(--text-3)]">{r.metric.label}</p>
+                </div>
+                {r.links && (
+                  <div className="flex gap-3 text-xs font-semibold">
+                    {r.links.map((l) => (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[var(--text-2)] underline-offset-4 hover:text-[var(--gold)] hover:underline"
+                      >
+                        {l.label} ↗
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Text */}
-              <div className="flex-1 pb-8">
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-1">
-                  {exp.role}
-                </h3>
-                <p className="text-sm text-blue-50 mb-1">{exp.company}</p>
-                <p className="text-xs text-blue-50/60 mb-6">
-                  🗓️&nbsp;{exp.period} · {exp.type}
-                </p>
-                <p className="text-xs italic text-blue-50/40 mb-4">Responsibilities</p>
-                <ul className="list-disc pl-5 space-y-3">
-                  {exp.highlights.map((r, j) => (
-                    <li key={j} className="text-white-50 text-sm md:text-base leading-relaxed">
-                      {r}
+              {/* Detail column */}
+              <div className="flex flex-col gap-5">
+                <ul className="space-y-3">
+                  {r.highlights.map((h) => (
+                    <li key={h} className="relative pl-5 text-sm leading-relaxed text-[var(--text-2)]/85 md:text-[15px]">
+                      <span aria-hidden className="absolute left-0 top-[0.6em] size-1.5 rounded-full" style={{ background: r.accent }} />
+                      {h}
+                    </li>
+                  ))}
+                </ul>
+                <ul className="mt-auto flex flex-wrap gap-1.5" aria-label="Tech used">
+                  {r.tech.map((t) => (
+                    <li key={t} className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-[var(--text-3)]">
+                      {t}
                     </li>
                   ))}
                 </ul>
               </div>
-            </div>
-          </motion.div>
+            </article>
+          </motion.li>
         ))}
-      </div>
+      </ol>
     </section>
   );
 }

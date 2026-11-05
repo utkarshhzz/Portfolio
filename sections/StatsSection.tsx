@@ -2,211 +2,187 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { ArrowUpRight } from "lucide-react";
+import { GithubIcon } from "@/components/shared/BrandIcons";
+import SectionHeading from "@/components/shared/SectionHeading";
+import { LINKS } from "@/lib/sections";
 
-/* ─── Types ────────────────────────────────────────────────────── */
-interface GitHubData {
+const USER = "utkarshhzz";
+const WEEKS = 52;
+
+function longestStreak(days: Day[]): number {
+  let best = 0;
+  let run = 0;
+  for (const d of [...days].sort((a, b) => a.date.localeCompare(b.date))) {
+    run = d.count > 0 ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return best;
+}
+
+interface Profile {
   public_repos: number;
   followers: number;
-  following: number;
-  public_gists: number;
 }
-
-interface ChartData {
+interface Day {
   date: string;
   count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+}
+interface ContributionsResponse {
+  total: Record<string, number>;
+  contributions: Day[];
 }
 
-/* ─── Animation helper ─────────────────────────────────────────── */
-function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] }}
-    >
-      {children}
-    </motion.div>
-  );
+const LEVEL_BG = [
+  "rgba(255,255,255,0.05)",
+  "rgba(196,154,60,0.28)",
+  "rgba(196,154,60,0.5)",
+  "rgba(196,154,60,0.75)",
+  "#DDB854",
+];
+
+/** Group the trailing N weeks of days into Sunday-first columns. */
+function toWeeks(days: Day[]): (Day | null)[][] {
+  if (days.length === 0) return [];
+  const sorted = [...days].sort((a, b) => a.date.localeCompare(b.date));
+  const last = sorted[sorted.length - 1];
+  const lastDow = new Date(`${last.date}T00:00:00Z`).getUTCDay();
+  const needed = (WEEKS - 1) * 7 + lastDow + 1;
+  const slice = sorted.slice(-needed);
+  const weeks: (Day | null)[][] = [];
+  for (let i = 0; i < slice.length; i += 7) weeks.push(slice.slice(i, i + 7));
+  const tail = weeks[weeks.length - 1];
+  while (tail.length < 7) tail.push(null);
+  return weeks;
 }
 
-/* ─── Thin progress bar ────────────────────────────────────────── */
-function Bar({ pct, color }: { pct: number; color: string }) {
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
-      <motion.div
-        className="h-full rounded-full"
-        style={{ background: color }}
-        initial={{ width: 0 }}
-        whileInView={{ width: `${pct}%` }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
-      />
+    <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] px-4 py-3.5">
+      <dd className="text-2xl font-extrabold tabular-nums tracking-tight text-[var(--text-1)]">{value}</dd>
+      <dt className="mt-0.5 text-[11px] text-[var(--text-3)]">{label}</dt>
     </div>
   );
 }
-
-/* ─── Stat pill ───────────────────────────────────────────────── */
-function StatPill({ label, value, color }: { label: string; value: string | number; color: string }) {
-  return (
-    <div
-      className="flex flex-col items-center justify-center rounded-2xl p-4 gap-1"
-      style={{ background: `${color}0d`, border: `1px solid ${color}22` }}
-    >
-      <span className="text-xl font-extrabold tabular-nums" style={{ color }}>{value}</span>
-      <span className="text-[10px] uppercase tracking-widest" style={{ color: "var(--text-3)" }}>{label}</span>
-    </div>
-  );
-}
-
-/* ─── Tooltip ─────────────────────────────────────────────────── */
-const CustomTooltip = ({ active, payload, label, unit }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-[#111] border border-white/10 rounded-md px-3 py-2 shadow-xl">
-        <p className="text-[10px] uppercase tracking-widest text-white/50 mb-1">{label}</p>
-        <p className="text-sm font-bold text-white">{payload[0].value} {unit}</p>
-      </div>
-    );
-  }
-  return null;
-};
-
-/* ─── GitHub Card ──────────────────────────────────────────────── */
-function GitHubCard() {
-  const [data, setData] = useState<GitHubData | null>(null);
-  const [chartData, setChartData] = useState<ChartData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const GOLD = "#C49A3C";
-
-  useEffect(() => {
-    Promise.allSettled([
-      fetch("https://api.github.com/users/utkarshhzz").then(r => r.ok ? r.json() : null),
-      fetch("https://github-contributions-api.deno.dev/utkarshhzz.json").then(r => r.ok ? r.json() : null)
-    ])
-    .then(([profileRes, contribsRes]) => {
-      const profile = profileRes.status === "fulfilled" ? profileRes.value : null;
-      const contribs = contribsRes.status === "fulfilled" ? contribsRes.value : null;
-      
-      // Even if rate limited, preserve what we can
-      if (profile && profile.public_repos !== undefined) {
-        setData(profile);
-      }
-      
-      // Process 6 months (180 days) of contributions safely
-      if (contribs && contribs.contributions) {
-        const allDays = contribs.contributions.flat() || [];
-        const sorted = allDays.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
-        const last180 = sorted.slice(-180);
-        
-        setChartData(last180.map((d: any) => ({
-          date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          count: d.contributionCount || 0
-        })));
-      }
-      
-      setLoading(false);
-    });
-  }, []);
-
-  return (
-    <div
-      className="rounded-2xl p-7 h-full flex flex-col gap-6 relative overflow-hidden transition-all duration-300"
-      style={{ background: "rgba(10,10,12,0.95)", border: "1px solid rgba(196,154,60,0.18)" }}
-      onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(196,154,60,0.4)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 48px rgba(196,154,60,0.08)"; }}
-      onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(196,154,60,0.18)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
-    >
-      <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl pointer-events-none" style={{ background: "rgba(196,154,60,0.07)" }} />
-
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(196,154,60,0.1)", border: "1px solid rgba(196,154,60,0.2)" }}>
-          <svg viewBox="0 0 24 24" fill={GOLD} width="20" height="20">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-          </svg>
-        </div>
-        <div>
-          <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: GOLD }}>GitHub</p>
-          <a href="https://github.com/utkarshhzz" target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-white hover:underline">
-            @utkarshhzz
-          </a>
-        </div>
-      </div>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <StatPill label="Public Repos"  value={data?.public_repos ?? "35"}  color={GOLD} />
-        <StatPill label="Followers"     value={data?.followers ?? "13"}     color="#4ade80" />
-        <StatPill label="Following"     value={data?.following ?? "1"}     color="#60a5fa" />
-        <StatPill label="Public Gists"  value={data?.public_gists ?? "0"}  color="#a78bfa" />
-      </div>
-
-      {/* Live Chart Widget */}
-      <div className="rounded-xl overflow-hidden p-4 flex flex-col gap-2" style={{ background: "#0a0a0c" }}>
-        <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2">Live Contributions (Last 6 Months)</p>
-        <div className="h-32 w-full relative">
-          {loading ? (
-            <div className="absolute inset-0 animate-pulse rounded bg-white/5" />
-          ) : chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="colorGithub" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={GOLD} stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor={GOLD} stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="date" hide />
-                <YAxis hide domain={['dataMin', 'dataMax + 2']} />
-                <Tooltip content={<CustomTooltip unit="commits" />} cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }} />
-                <Area type="monotone" dataKey="count" stroke={GOLD} strokeWidth={2} fillOpacity={1} fill="url(#colorGithub)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-xs text-white/30">Data unavailable</div>
-          )}
-        </div>
-      </div>
-
-      {/* View profile link */}
-      <a href="https://github.com/utkarshhzz" target="_blank" rel="noopener noreferrer" className="mt-auto flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5" style={{ background: "rgba(196,154,60,0.08)", border: "1px solid rgba(196,154,60,0.2)", color: GOLD }}>
-        View GitHub Profile
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
-    </div>
-  );
-}
-
-/* ─── Main section ─────────────────────────────────────────────── */
 
 export default function StatsSection() {
-  return (
-    <section id="stats" className="w-full bg-black section-padding">
-      <motion.div
-        className="flex flex-col items-center mb-14"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="eyebrow-badge mb-5">📊 Live Stats</div>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
-          By the Numbers
-        </h2>
-        <p className="text-blue-50 text-sm md:text-base mt-4 text-center max-w-md">
-          Real-time data pulled directly from GitHub.
-        </p>
-      </motion.div>
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [days, setDays] = useState<Day[] | null>(null);
+  const [total, setTotal] = useState<number | null>(null);
+  const [failed, setFailed] = useState(false);
 
-      <div className="grid grid-cols-1 gap-8 max-w-2xl mx-auto">
-        <FadeIn delay={0}>
-          <GitHubCard />
-        </FadeIn>
-      </div>
+  useEffect(() => {
+    const ctrl = new AbortController();
+    const get = <T,>(url: string) =>
+      fetch(url, { signal: ctrl.signal }).then((r) => (r.ok ? (r.json() as Promise<T>) : null));
+
+    get<Profile>(`https://api.github.com/users/${USER}`)
+      .then((p) => { if (p && typeof p.public_repos === "number") setProfile(p); })
+      .catch(() => {});
+
+    get<ContributionsResponse>(`https://github-contributions-api.jogruber.de/v4/${USER}?y=last`)
+      .then((c) => {
+        if (!c?.contributions?.length) { setFailed(true); return; }
+        setDays(c.contributions);
+        setTotal(c.total?.lastYear ?? c.contributions.reduce((s, d) => s + d.count, 0));
+      })
+      .catch((e: unknown) => { if ((e as Error)?.name !== "AbortError") setFailed(true); });
+
+    return () => ctrl.abort();
+  }, []);
+
+  const weeks = days ? toWeeks(days) : [];
+  const shown = weeks.flat().filter((d): d is Day => d !== null);
+  const recent = shown.reduce((s, d) => s + d.count, 0);
+  const activeDays = shown.filter((d) => d.count > 0).length;
+
+  return (
+    <section id="github" className="section-padding">
+      <SectionHeading
+        index="07"
+        eyebrow="Open source"
+        title="GitHub Activity"
+        sub="Pulled live from GitHub every time this page loads."
+      />
+
+      <motion.div
+        className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-[rgba(196,154,60,0.18)] bg-[rgba(10,10,12,0.95)] p-6 md:p-8"
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div aria-hidden className="pointer-events-none absolute -right-12 -top-12 size-40 rounded-full bg-[rgba(196,154,60,0.08)] blur-3xl" />
+
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-xl border border-[rgba(196,154,60,0.2)] bg-[rgba(196,154,60,0.1)] text-[var(--gold)]">
+              <GithubIcon size={20} />
+            </span>
+            <div>
+              <p className="font-mono text-[11px] uppercase tracking-widest text-[var(--gold)]">GitHub</p>
+              <p className="text-sm font-bold text-white">@{USER}</p>
+            </div>
+          </div>
+          <a
+            href={LINKS.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(196,154,60,0.25)] px-3.5 py-2 text-xs font-semibold text-[var(--gold)] transition-colors hover:bg-[rgba(196,154,60,0.08)]"
+          >
+            View profile <ArrowUpRight size={13} />
+          </a>
+        </div>
+
+        <dl className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Stat label="Contributions (last year)" value={total !== null ? total.toLocaleString("en-IN") : "—"} />
+          <Stat label="Active days" value={days ? String(activeDays) : "—"} />
+          <Stat label="Longest streak" value={days ? `${longestStreak(shown)} days` : "—"} />
+          <Stat label="Public repos" value={profile ? String(profile.public_repos) : "35+"} />
+        </dl>
+
+        <div className="rounded-xl bg-[#0a0a0c] p-4">
+          <p className="mb-3 font-mono text-[10px] uppercase tracking-widest text-white/40">Contributions · last {WEEKS} weeks</p>
+          {days ? (
+            <div className="overflow-x-auto pb-1" tabIndex={0} aria-label="Contribution graph, scrollable">
+              <div
+                className="mx-auto grid w-max grid-flow-col gap-[3px]"
+                style={{ gridTemplateRows: "repeat(7, 12px)", gridTemplateColumns: `repeat(${weeks.length}, 12px)` }}
+                role="img"
+                aria-label={`${recent} contributions in the last ${WEEKS} weeks`}
+              >
+                {weeks.flatMap((w, wi) =>
+                  w.map((d, di) => (
+                    <span
+                      key={`${wi}-${di}`}
+                      title={d ? `${d.count} contribution${d.count === 1 ? "" : "s"} on ${d.date}` : undefined}
+                      className="aspect-square rounded-[3px]"
+                      style={{ background: d ? LEVEL_BG[d.level] : "transparent" }}
+                    />
+                  )),
+                )}
+              </div>
+            </div>
+          ) : failed ? (
+            <p className="py-8 text-center text-xs text-white/40">
+              Couldn&apos;t reach the contributions API.{" "}
+              <a href={LINKS.github} className="text-[var(--gold)] underline-offset-4 hover:underline" target="_blank" rel="noopener noreferrer">
+                See it on GitHub
+              </a>
+            </p>
+          ) : (
+            <div className="h-[118px] animate-pulse rounded-lg bg-white/[0.04]" />
+          )}
+          <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-white/40" aria-hidden>
+            Less
+            {LEVEL_BG.map((bg) => (
+              <span key={bg} className="size-2.5 rounded-[2px]" style={{ background: bg }} />
+            ))}
+            More
+          </div>
+        </div>
+      </motion.div>
     </section>
   );
 }

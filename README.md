@@ -1,58 +1,43 @@
 # Utkarsh Kumar — Portfolio
 
-A cinematic, scroll-driven AI engineer portfolio built with **Next.js 15**, **TypeScript**, **Tailwind CSS v4**, and **Framer Motion**.
+Scroll-driven portfolio for an AI systems engineer, built with **Next.js 16**, **React 19**, **TypeScript**, **Tailwind CSS v4** and **Framer Motion**.
 
-**Live:** [Coming soon on Vercel]
+**Live:** https://utkarshkumar-theta.vercel.app — every push to `main` deploys automatically on Vercel.
 
----
+## Sections
 
-## Stack
+| # | Section | File |
+|---|---------|------|
+| – | Cinematic entrance (once per session) | `sections/EntranceScreen.tsx` |
+| – | Scroll-scrubbed hero (102 WebP frames) | `sections/Hero.tsx` |
+| – | About / identity | `sections/IdentitySection.tsx` |
+| 01 | Projects | `sections/ShowcaseSection.tsx` |
+| 02 | Experience timeline | `sections/Experience.tsx` |
+| 03 | Hackathon achievements + lightbox | `sections/Achievements.tsx`, data in `data/achievements.ts` |
+| 04 | Approach | `sections/FeatureCards.tsx` |
+| 05 | Skills | `sections/Skills.tsx` |
+| 06 | Education | `sections/Education.tsx` |
+| 07 | Live GitHub activity | `sections/StatsSection.tsx` |
+| 08 | Contact | `sections/Contact.tsx` |
 
-| Layer      | Technology |
-|------------|-----------|
-| Framework  | Next.js 15 (App Router) |
-| Language   | TypeScript |
-| Styling    | Tailwind CSS v4 + Custom CSS Variables |
-| Animation  | Framer Motion |
-| Deployment | Vercel |
+Press **⌘K / Ctrl+K** anywhere for the command palette. Section ids and links live in `lib/sections.ts`.
 
-## Features
+## Common edits
 
-- **Cinematic entrance screen** — Playfair Display serif quote, auto-dismisses
-- **Scroll-driven hero** — 102-frame PNG sequence mapped to `scrollY`
-- **3D Experience timeline** — CSS perspective + scroll-triggered card unfold
-- **Project spotlight cards** — Mouse-tracking radial glow, hover expand
-- **Pure tag skills** — No ratings or bars, organized by category including DSA
-- **Testimonials section** — Placeholder cards for internship feedback
-- **Command palette** — `⌘K` / `Ctrl+K` to navigate
+- **New hackathon result:** drop the photo in `public/achievements/` and add an entry at the top of `ACHIEVEMENTS` in `data/achievements.ts`. Podium and summary counts update automatically.
+- **New resume:** replace `public/resume.pdf`.
+- **Profile photo:** replace `public/profile.webp` (square, ≥ 400 px).
+- **Hero frames:** `public/hero-frames/frame_000.webp … frame_101.webp`. They are served with a one-year immutable cache, so if you re-export them, use new file names and update `FRAME_PATH` in `sections/Hero.tsx`.
 
-## Getting Started
+## Contact form
+
+The form sends through [Formspree](https://formspree.io) when `NEXT_PUBLIC_FORMSPREE_ID` is set (Vercel → Project → Settings → Environment Variables, value is the ID from `https://formspree.io/f/<ID>`). Without it, the form opens the visitor's email app with the message pre-filled.
+
+## Develop
 
 ```bash
 npm install
-npm run dev
+npm run dev     # http://localhost:3000
+npm run lint
+npm run build
 ```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-## Hero Frames
-
-The scroll-driven hero animation requires 102 PNG frames in `public/hero-frames/`.  
-These are **not included in the repo** (57 MB total) due to GitHub's size limits.
-
-**To set up locally:**
-1. Add your frames as `Portfolio_utk_000.png` → `Portfolio_utk_101.png` in `public/hero-frames/`
-2. Or use Git LFS: `git lfs track "public/hero-frames/*.png"`
-
-**For Vercel deployment**, upload frames to a CDN and update `FRAME_PATH` in `sections/Hero.tsx`.
-
-## Deployment
-
-```bash
-npm run build  # verify 0 errors
-vercel --prod  # deploy
-```
-
-## License
-
-MIT

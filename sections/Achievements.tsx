@@ -1,160 +1,318 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useCallback, useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import * as Dialog from "@radix-ui/react-dialog";
+import { Trophy, Maximize2, X, ChevronLeft, ChevronRight, Users, CalendarDays, Images } from "lucide-react";
+import SectionHeading from "@/components/shared/SectionHeading";
+import {
+  ACHIEVEMENTS,
+  OTHER_WINS,
+  MEDAL,
+  PODIUM_COUNT,
+  type Achievement,
+} from "@/data/achievements";
 
-interface Achievement {
-  id: number;
-  title: string;
-  position: string;
-  event: string;
-  image: string;
-  accent: string;
-}
+const EASE = [0.22, 1, 0.36, 1] as const;
 
-const ACHIEVEMENTS: Achievement[] = [
-  {
-    id: 1,
-    title: "Hackbricks",
-    position: "2nd Runner Up",
-    event: "National Hackathon",
-    image: "/achievements/Hackbricks_2nd.jpg",
-    accent: "#60a5fa", // blue
-  },
-  {
-    id: 2,
-    title: "Bitflux",
-    position: "Runner Up",
-    event: "National Level Hackathon",
-    image: "/achievements/Bitflux_second.jpg",
-    accent: "#a78bfa", // purple
-  },
-  {
-    id: 3,
-    title: "Ignisia",
-    position: "3rd Place",
-    event: "Tech Fest Hackathon",
-    image: "/achievements/Ignisia_3rd.jpg",
-    accent: "#f43f5e", // rose
-  },
-  {
-    id: 4,
-    title: "Lovelace",
-    position: "3rd Place",
-    event: "Women in Tech / Tech Fest",
-    image: "/achievements/lovelace_3rd.jpg",
-    accent: "#fbbf24", // amber
-  },
-  {
-    id: 5,
-    title: "Hackathon Excellence",
-    position: "Certificate",
-    event: "Award of Recognition",
-    image: "/achievements/Hackathon_certificate.png",
-    accent: "#10b981", // emerald
-  },
-];
-
-function FadeIn({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
+function PlacementChip({ rank, label }: { rank: Achievement["rank"]; label: string }) {
+  const c = MEDAL[rank].color;
   return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold backdrop-blur-md"
+      style={{ background: `${c}1f`, color: c, border: `1px solid ${c}55` }}
     >
-      {children}
-    </motion.div>
+      <span aria-hidden className="size-1.5 rounded-full" style={{ background: c }} />
+      {label}
+    </span>
   );
 }
 
-export default function AchievementsSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
+/* ── Photo card ─────────────────────────────────────────────────── */
+function AchievementCard({
+  item,
+  index,
+  onOpen,
+}: {
+  item: Achievement;
+  index: number;
+  onOpen: () => void;
+}) {
+  const cover = item.images[0];
+  const contain = item.fit === "contain";
 
   return (
-    <section id="achievements" className="w-full bg-black section-padding overflow-hidden relative">
-      {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none" />
-
-      {/* Header */}
-      <motion.div
-        className="flex flex-col items-center mb-16 relative z-10"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
+    <motion.li
+      className={`relative ${item.span === "tall" ? "lg:row-span-2" : ""}`}
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.6, delay: (index % 3) * 0.08, ease: EASE }}
+    >
+      <button
+        type="button"
+        onClick={onOpen}
+        className="achievement-card group"
+        aria-label={`${item.event}, ${item.placement}. Open photo`}
       >
-        <div className="eyebrow-badge mb-5">🏆 Recognitions</div>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-center">
-          Hackathon Achievements
-        </h2>
-        <p className="text-blue-50 text-sm md:text-base mt-4 text-center max-w-lg">
-          5+ Hackathon Wins. Bringing ideas to life under 24-48 hour pressure and taking home over ₹1 Lakh+ in prizes.
-        </p>
-      </motion.div>
+        {/* Blurred backdrop for posters shown uncropped */}
+        {contain && (
+          <Image
+            src={cover.src}
+            alt=""
+            aria-hidden
+            fill
+            sizes="10vw"
+            className="object-cover scale-125 blur-2xl opacity-50"
+          />
+        )}
+        <Image
+          src={cover.src}
+          alt={cover.alt}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className={`${contain ? "object-contain p-4 pb-28" : "object-cover"} transition-transform duration-700 ease-out group-hover:scale-[1.04]`}
+          style={{ objectPosition: item.focus ?? "50% 50%" }}
+        />
 
-      {/* Gallery Grid */}
-      <div ref={containerRef} className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 px-4">
-        {ACHIEVEMENTS.map((item, idx) => (
-          <FadeIn
-            key={item.id}
-            delay={idx * 0.15}
-            className="group relative rounded-2xl overflow-hidden aspect-[4/3]"
-          >
-            {/* Image Container */}
-            <div className="absolute inset-0 bg-neutral-900 border border-white/10 rounded-2xl flex items-center justify-center overflow-hidden">
-              <Image
-                src={item.image}
-                alt={item.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              
-              {/* Overlay Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-300" />
-            </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-transparent from-[22%] via-[48%] to-[82%]" />
 
-            {/* Content */}
-            <div className="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
-              <div
-                className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
-              >
-                <div 
-                  className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-3 backdrop-blur-md"
-                  style={{ 
-                    background: `${item.accent}30`, 
-                    color: item.accent, 
-                    border: `1px solid ${item.accent}50` 
-                  }}
-                >
-                  {item.position}
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-md">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-neutral-300 font-medium drop-shadow-md">
-                  {item.event}
-                </p>
+        <span className="absolute top-3 right-3 grid size-9 place-items-center rounded-full bg-black/50 text-white/80 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+          {item.images.length > 1 ? <Images size={15} /> : <Maximize2 size={15} />}
+        </span>
+
+        <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 text-left">
+          <PlacementChip rank={item.rank} label={item.placement} />
+          <h3 className="mt-3 text-xl md:text-2xl font-bold leading-tight text-white">
+            {item.event}
+          </h3>
+          <p className="mt-1 text-[13px] text-white/65 leading-snug">
+            {item.organizer}
+            {item.partners && <span className="text-white/45"> · {item.partners}</span>}
+          </p>
+          {(item.prize || item.date) && (
+            <p className="mt-2 font-mono text-[11px] tracking-wide text-white/50">
+              {[item.date, item.prize].filter(Boolean).join("  ·  ")}
+            </p>
+          )}
+        </div>
+      </button>
+    </motion.li>
+  );
+}
+
+/* ── Lightbox ───────────────────────────────────────────────────── */
+function Lightbox({
+  openIndex,
+  onChange,
+}: {
+  openIndex: number | null;
+  onChange: (i: number | null) => void;
+}) {
+  const [imgIdx, setImgIdx] = useState(0);
+  const item = openIndex === null ? null : ACHIEVEMENTS[openIndex];
+  const total = ACHIEVEMENTS.length;
+
+  const go = useCallback(
+    (dir: 1 | -1) => {
+      if (openIndex === null) return;
+      setImgIdx(0);
+      onChange((openIndex + dir + total) % total);
+    },
+    [openIndex, onChange, total],
+  );
+
+  const image = item?.images[Math.min(imgIdx, item.images.length - 1)];
+
+  return (
+    <Dialog.Root
+      open={item !== null}
+      onOpenChange={(o) => {
+        if (!o) {
+          onChange(null);
+          setImgIdx(0);
+        }
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-[300] bg-black/85 backdrop-blur-sm data-[state=open]:animate-[fadeIn_.2s_ease-out]" />
+        <Dialog.Content
+          className="fixed left-1/2 top-1/2 z-[301] flex max-h-[92dvh] w-[min(1100px,94vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0b0b0d] shadow-2xl outline-none lg:flex-row data-[state=open]:animate-[popIn_.25s_cubic-bezier(.22,1,.36,1)]"
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight") go(1);
+            if (e.key === "ArrowLeft") go(-1);
+          }}
+        >
+          {item && image && (
+            <>
+              <div className="relative min-h-[42dvh] flex-1 bg-black lg:min-h-[78dvh]">
+                <Image
+                  key={image.src}
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  sizes="(max-width: 1024px) 94vw, 760px"
+                  className="object-contain"
+                  quality={90}
+                />
+                {item.images.length > 1 && (
+                  <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2 rounded-full bg-black/60 p-1.5 backdrop-blur">
+                    {item.images.map((im, i) => (
+                      <button
+                        key={im.src}
+                        type="button"
+                        onClick={() => setImgIdx(i)}
+                        aria-label={`Show image ${i + 1} of ${item.images.length}`}
+                        aria-current={i === imgIdx}
+                        className={`h-1.5 rounded-full transition-all ${i === imgIdx ? "w-6 bg-white" : "w-1.5 bg-white/40 hover:bg-white/70"}`}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          </FadeIn>
+
+              <aside className="flex w-full flex-col gap-4 overflow-y-auto border-t border-white/10 p-6 lg:w-[340px] lg:border-l lg:border-t-0 lg:p-8">
+                <div className="pr-12">
+                  <PlacementChip rank={item.rank} label={item.placement} />
+                </div>
+                <div>
+                  <Dialog.Title className="text-2xl font-bold leading-tight text-white">
+                    {item.event}
+                  </Dialog.Title>
+                  <p className="mt-1.5 text-sm text-[var(--text-3)]">{item.organizer}</p>
+                  {item.partners && (
+                    <p className="mt-0.5 text-sm text-[var(--text-3)]/80">with {item.partners}</p>
+                  )}
+                </div>
+                <Dialog.Description className="text-sm leading-relaxed text-[var(--text-2)]/85">
+                  {item.summary}
+                </Dialog.Description>
+                <dl className="grid grid-cols-2 gap-3 text-sm">
+                  {item.team && (
+                    <div className="lightbox-fact">
+                      <dt><Users size={13} /> Team</dt>
+                      <dd>{item.team.replace("Team ", "")}</dd>
+                    </div>
+                  )}
+                  {item.date && (
+                    <div className="lightbox-fact">
+                      <dt><CalendarDays size={13} /> When</dt>
+                      <dd>{item.date}</dd>
+                    </div>
+                  )}
+                  {item.prize && (
+                    <div className="lightbox-fact">
+                      <dt><Trophy size={13} /> Prize</dt>
+                      <dd>{item.prize}</dd>
+                    </div>
+                  )}
+                </dl>
+
+                <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+                  <span className="font-mono text-xs text-[var(--text-3)]">
+                    {String((openIndex ?? 0) + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
+                  </span>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => go(-1)} className="icon-btn" aria-label="Previous achievement">
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button type="button" onClick={() => go(1)} className="icon-btn" aria-label="Next achievement">
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              </aside>
+
+              <Dialog.Close className="icon-btn absolute right-3 top-3 bg-black/60 backdrop-blur" aria-label="Close">
+                <X size={16} />
+              </Dialog.Close>
+            </>
+          )}
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
+/* ── Section ────────────────────────────────────────────────────── */
+export default function AchievementsSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const other = OTHER_WINS[0];
+
+  const summary = [
+    { value: `${PODIUM_COUNT}`, label: "Podium finishes" },
+    { value: `${ACHIEVEMENTS.length + OTHER_WINS.length}`, label: "Hackathons placed" },
+    { value: "₹1.5L+", label: "Prize money" },
+  ];
+
+  return (
+    <section id="achievements" className="section-padding relative">
+      <div aria-hidden className="pointer-events-none absolute left-1/2 top-40 h-[420px] w-[720px] max-w-full -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(196,154,60,0.10),transparent)]" />
+
+      <SectionHeading
+        index="03"
+        eyebrow="Recognition"
+        title="Hackathon Achievements"
+        sub="Ideas built and shipped in 24–48 hours, then judged against hundreds of other teams."
+      />
+
+      <dl className="relative mx-auto mb-12 grid max-w-2xl grid-cols-3 divide-x divide-white/[0.07] rounded-2xl border border-white/[0.07] bg-white/[0.02]">
+        {summary.map((s) => (
+          <div key={s.label} className="px-3 py-5 text-center">
+            <dd className="text-2xl md:text-3xl font-extrabold tabular-nums tracking-tight text-[var(--gold)]">
+              {s.value}
+            </dd>
+            <dt className="mt-1 text-[11px] md:text-xs text-[var(--text-3)]">{s.label}</dt>
+          </div>
         ))}
-      </div>
+      </dl>
+
+      <ul className="relative mx-auto grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:grid-flow-dense auto-rows-[300px] md:auto-rows-[280px]">
+        {ACHIEVEMENTS.map((item, i) => (
+          <AchievementCard key={item.id} item={item} index={i} onOpen={() => setOpenIndex(i)} />
+        ))}
+
+        {/* Win without a photo */}
+        <motion.li
+          className="relative flex flex-col justify-between overflow-hidden rounded-2xl border p-6"
+          style={{
+            borderColor: `${MEDAL[other.rank].color}40`,
+            background: `linear-gradient(160deg, ${MEDAL[other.rank].color}14, rgba(10,10,12,0.9) 55%)`,
+          }}
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6, delay: 0.16, ease: EASE }}
+        >
+          <Trophy
+            aria-hidden
+            size={120}
+            strokeWidth={1}
+            className="absolute -right-6 -top-6 opacity-[0.07]"
+            style={{ color: MEDAL[other.rank].color }}
+          />
+          <div>
+            <PlacementChip rank={other.rank} label={other.placement} />
+            <h3 className="mt-3 text-2xl font-bold text-white">{other.event}</h3>
+            <p className="mt-1 text-[13px] text-white/60">{other.detail}</p>
+          </div>
+          <p className="text-[13px] leading-relaxed text-[var(--text-3)]">{other.summary}</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-mono text-[11px] tracking-wide text-white/50">{other.prize} prize</p>
+            <a
+              href={other.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold text-[var(--gold)] hover:underline underline-offset-4"
+            >
+              View code ↗
+            </a>
+          </div>
+        </motion.li>
+      </ul>
+
+      <Lightbox openIndex={openIndex} onChange={setOpenIndex} />
     </section>
   );
 }

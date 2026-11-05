@@ -2,367 +2,259 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { Play, Zap, ExternalLink, Globe } from "lucide-react";
+import { GithubIcon } from "@/components/shared/BrandIcons";
+import SectionHeading from "@/components/shared/SectionHeading";
 
-/* ── Icons ──────────────────────────────────────────────────────── */
-const PlayIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-    <path d="M8 5v14l11-7z" />
-  </svg>
-);
-const GitHubIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-  </svg>
-);
-const ExternalIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-  </svg>
-);
-
-/* ── Project data ────────────────────────────────────────────────── */
 interface Project {
-  id: number;
+  id: string;
   name: string;
   tagline: string;
-  impact: string; // one-line metric
+  impact: string;
   description: string;
   tech: string[];
   image: string;
-  githubUrl: string;
   demoUrl: string;
-  accentColor: string;
-  featured?: boolean;
+  githubUrl?: string;
+  liveUrl?: string;
+  accent: string;
 }
 
 const PROJECTS: Project[] = [
   {
-    id: 1,
+    id: "candidate-engine",
     name: "AI Candidate Discovery Engine",
-    tagline: "Production-grade Semantic Search",
-    impact: "Top 10 from 110M+ resumes in under 10 seconds",
+    tagline: "Hybrid semantic search · Provaantech",
+    impact: "Top-10 matches from 110M+ records in under 10 s",
     description:
-      "Production-grade semantic search system surfacing the best candidates from a corpus of 110M+ resumes. Built with Azure AI Search, OpenAI embeddings, and a GPT-powered match rationale layer. Optimized vector retrieval pipelines to reduce enterprise search time by 80% while significantly minimizing API costs.",
-    tech: ["Python", "FastAPI", "Azure AI Search", "OpenAI", "PostgreSQL"],
+      "Hybrid retrieval over 110M+ resumes: OpenAI embeddings and Azure AI Search for recall, BM25 and semantic re-ranking for precision, and GPT-4o-mini writing a fit explanation for every shortlisted candidate. Retrieval and ranking modules are covered by unit and integration tests.",
+    tech: ["Python", "FastAPI", "Azure AI Search", "OpenAI", "BM25", "PostgreSQL"],
     image: "/project1.png",
-    githubUrl: "https://github.com/utkarshhzz",
     demoUrl: "https://youtu.be/85gfMJ7TME0",
-    accentColor: "#C49A3C",
-    featured: true,
+    githubUrl: "https://github.com/utkarshhzz/JDeesiee",
+    accent: "#C49A3C",
   },
   {
-    id: 2,
+    id: "crowdwisdom",
     name: "CrowdWisdom.AI",
-    tagline: "Multi-Agent Orchestration",
-    impact: "Collective intelligence platform",
+    tagline: "Multi-agent LLM orchestration",
+    impact: "40% better scheduling efficiency",
     description:
-      "Multi-agent AI platform for collective intelligence. LangGraph agents debate, synthesise, and deliver decisions with real-time voice output — built end-to-end in 36 hours.",
-    tech: ["Python", "LangGraph", "FastAPI", "OpenAI", "TTS"],
+      "LangGraph agents that debate, synthesise and act on automated workflows, with dynamic LLM-driven routing and ElevenLabs voice for real-time conversation.",
+    tech: ["Python", "LangGraph", "FastAPI", "OpenAI", "ElevenLabs"],
     image: "/project2.png",
-    githubUrl: "https://github.com/utkarshhzz",
     demoUrl: "https://youtu.be/xEUB63xrMI4",
-    accentColor: "#4ade80",
+    githubUrl: "https://github.com/utkarshhzz/CrowdWisdom.AI",
+    liveUrl: "https://crowd-wisdom-ai.vercel.app",
+    accent: "#4ade80",
   },
   {
-    id: 3,
-    name: "SmurfPakad — Fraud Detection",
-    tagline: "Graph Neural Networks · Web3 Security",
-    impact: "87% fraud detection accuracy on live blockchain data",
+    id: "smurfpakad",
+    name: "SmurfPakad",
+    tagline: "Graph neural networks · Fraud detection",
+    impact: "Top 3, state-level hackathon",
     description:
-      "GNN-powered smurf account detector for Web3 gaming ecosystems. GraphSAGE clusters suspicious wallets using transaction graph topology — no rule-based heuristics.",
-    tech: ["Python", "GraphSAGE", "PyTorch", "Web3.py", "NetworkX"],
+      "A GraphSAGE GNN that flags smurfing and money-laundering patterns from blockchain transaction-graph topology rather than hand-written rules, with D3.js force-graph views for investigators.",
+    tech: ["PyTorch Geometric", "GraphSAGE", "FastAPI", "PostgreSQL", "D3.js"],
     image: "/project3.png",
-    githubUrl: "https://github.com/utkarshhzz",
     demoUrl: "https://youtu.be/U30vM4ilUqI",
-    accentColor: "#a78bfa",
+    accent: "#a78bfa",
   },
   {
-    id: 4,
+    id: "medical-assistant",
     name: "Medical AI Assistant",
-    tagline: "Healthcare RAG · 24/7 Q&A",
-    impact: "Sub-2s response on 10,000+ medical document corpus",
+    tagline: "Healthcare RAG",
+    impact: "Answers cite their clinical sources",
     description:
-      "RAG-powered medical Q&A assistant grounded on trusted clinical sources. Evidence-based answers with source citations — never hallucinates, always cites.",
+      "Retrieval-augmented medical Q&A grounded on trusted clinical documents. Every answer comes with its source passages, so claims can be checked instead of trusted.",
     tech: ["Python", "LangChain", "RAG", "FastAPI", "React"],
     image: "/project4.png",
-    githubUrl: "https://github.com/utkarshhzz",
     demoUrl: "https://youtu.be/cwfJqqEMcPI",
-    accentColor: "#38bdf8",
+    githubUrl: "https://github.com/utkarshhzz/Medical_Chatbot",
+    accent: "#38bdf8",
   },
   {
-    id: 5,
-    name: "Resume Sanitizer API",
-    tagline: "PII Redaction · Production REST API",
-    impact: "Redacts 15+ PII entity types at 95%+ Presidio confidence",
+    id: "pii-redaction",
+    name: "PII Redaction Microservice",
+    tagline: "Privacy engineering · Azure AKS",
+    impact: "Zero per-request cost, fully instrumented",
     description:
-      "REST API that ingests a PDF resume and returns a permanently blacked-out version. Powered by Microsoft Presidio NLP — phone, email, address, name — all gone, zero leaks.",
-    tech: ["Python", "FastAPI", "Presidio", "spaCy", "PDF"],
+      "Upload a resume PDF, get it back permanently redacted. Presidio, spaCy NER and custom recognisers for PAN, Aadhaar and +91 numbers, served by FastAPI on Kubernetes with Redis caching and Prometheus/Grafana monitoring.",
+    tech: ["FastAPI", "Presidio", "spaCy", "Kubernetes", "Redis", "Grafana"],
     image: "/project5.png",
-    githubUrl: "https://github.com/utkarshhzz",
     demoUrl: "https://youtu.be/TR2lV09c_NA",
-    accentColor: "#fb923c",
+    githubUrl: "https://github.com/utkarshhzz/Resume_Sanitizer",
+    accent: "#fb923c",
   },
 ];
 
-/* ── Fade-in wrapper ────────────────────────────────────────────── */
-function FadeIn({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
     <motion.div
       className={className}
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+      transition={{ duration: 0.65, delay, ease: EASE }}
     >
       {children}
     </motion.div>
   );
 }
 
-/* ── Reusable button row ─────────────────────────────────────────── */
-function ProjectButtons({ project, small }: { project: Project; small?: boolean }) {
-  const py = small ? "py-2" : "py-2.5";
-  const px = small ? "px-4" : "px-5";
-  const text = small ? "text-xs" : "text-sm";
+function ProjectLinks({ p, small }: { p: Project; small?: boolean }) {
+  const size = small ? "px-3.5 py-2 text-xs" : "px-5 py-2.5 text-sm";
+  const ghost = `inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] font-medium text-[var(--text-2)] transition-all duration-200 hover:-translate-y-0.5 hover:border-white/25 ${size}`;
   return (
-    <div className="flex flex-wrap gap-2.5 mt-4">
+    <div className="mt-4 flex flex-wrap gap-2.5">
       <a
-        href={project.demoUrl}
+        href={p.demoUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className={`inline-flex items-center gap-1.5 ${px} ${py} rounded-xl ${text} font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg`}
-        style={{
-          background: project.accentColor,
-          color: "#080808",
-          boxShadow: `0 4px 16px ${project.accentColor}35`,
-        }}
+        className={`inline-flex items-center gap-1.5 rounded-xl font-semibold text-[#080808] transition-all duration-200 hover:-translate-y-0.5 ${size}`}
+        style={{ background: p.accent, boxShadow: `0 4px 16px ${p.accent}35` }}
       >
-        <PlayIcon />
-        Watch Demo
+        <Play size={13} fill="currentColor" /> Watch demo
       </a>
-      <a
-        href={project.githubUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={`inline-flex items-center gap-1.5 ${px} ${py} rounded-xl ${text} font-medium border transition-all duration-200 hover:-translate-y-0.5`}
-        style={{
-          borderColor: "rgba(255,255,255,0.1)",
-          background: "rgba(255,255,255,0.04)",
-          color: "#d9ecff",
-        }}
-      >
-        <GitHubIcon />
-        GitHub
-      </a>
+      {p.liveUrl && (
+        <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className={ghost}>
+          <Globe size={13} /> Live
+        </a>
+      )}
+      {p.githubUrl && (
+        <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className={ghost}>
+          <GithubIcon size={13} /> Code
+        </a>
+      )}
     </div>
   );
 }
 
-/* ── Impact badge ────────────────────────────────────────────────── */
 function ImpactBadge({ text, color }: { text: string; color: string }) {
   return (
-    <div
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold mb-3"
+    <p
+      className="mb-3 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold"
       style={{ background: `${color}18`, border: `1px solid ${color}35`, color }}
     >
-      <span>⚡</span>
-      {text}
+      <Zap size={12} fill="currentColor" /> {text}
+    </p>
+  );
+}
+
+function TechList({ tech, small }: { tech: string[]; small?: boolean }) {
+  return (
+    <ul className="flex flex-wrap gap-1.5" aria-label="Tech stack">
+      {tech.map((t) => (
+        <li
+          key={t}
+          className={`rounded-full border border-white/10 bg-white/[0.04] font-medium text-[var(--text-3)] ${small ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]"}`}
+        >
+          {t}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Thumb({ p, sizes, big }: { p: Project; sizes: string; big?: boolean }) {
+  return (
+    <div className="group/thumb relative overflow-hidden rounded-2xl border border-white/[0.06]" style={{ aspectRatio: "16/10" }}>
+      <Image
+        src={p.image}
+        alt={`${p.name} screenshot`}
+        fill
+        sizes={sizes}
+        className="object-cover transition-transform duration-500 group-hover/thumb:scale-[1.03]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+      <a
+        href={p.demoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Watch the ${p.name} demo`}
+        className="absolute inset-0 z-10 flex items-center justify-center bg-black/45 opacity-0 backdrop-blur-[3px] transition-opacity duration-300 group-hover/thumb:opacity-100 focus-visible:opacity-100"
+      >
+        <span
+          className={`flex items-center gap-2 rounded-full font-semibold text-[#080808] ${big ? "px-6 py-3 text-sm" : "px-5 py-2.5 text-xs"}`}
+          style={{ background: p.accent }}
+        >
+          <Play size={14} fill="currentColor" /> Watch demo <ExternalLink size={12} />
+        </span>
+      </a>
+      {big && (
+        <span
+          className="absolute left-4 top-4 z-10 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#080808]"
+          style={{ background: p.accent }}
+        >
+          Featured
+        </span>
+      )}
     </div>
   );
 }
 
-/* ── Featured project card (large) ──────────────────────────────── */
-function FeaturedCard({ project }: { project: Project }) {
-  return (
-    <FadeIn className="flex flex-col xl:flex-row gap-8 xl:gap-12 items-start">
-      {/* Image */}
-      <div className="xl:w-[58%] w-full">
-        <div className="relative rounded-2xl overflow-hidden group" style={{ aspectRatio: "16/10" }}>
-          <Image
-            src={project.image}
-            alt={project.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            sizes="(max-width: 768px) 100vw, 58vw"
-            priority
-          />
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-          {/* Hover play */}
-          <a
-            href={project.demoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-            style={{ background: "rgba(0,0,0,0.45)", backdropFilter: "blur(3px)" }}
-          >
-            <motion.div
-              className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm"
-              style={{ background: project.accentColor, color: "#080808" }}
-              whileHover={{ scale: 1.07 }}
-            >
-              <PlayIcon />
-              Watch Demo
-              <ExternalIcon />
-            </motion.div>
-          </a>
-          {/* Featured badge */}
-          <div
-            className="absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase z-10"
-            style={{ background: project.accentColor, color: "#080808" }}
-          >
-            Featured
-          </div>
-        </div>
-      </div>
-
-      {/* Text */}
-      <div className="xl:w-[42%] w-full flex flex-col justify-center">
-        <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: project.accentColor }}>
-          {project.tagline}
-        </p>
-        <ImpactBadge text={project.impact} color={project.accentColor} />
-        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 leading-tight">
-          {project.name}
-        </h2>
-        <p className="text-blue-50 text-sm md:text-base leading-relaxed mb-4">
-          {project.description}
-        </p>
-        {/* Tech pills */}
-        <div className="flex flex-wrap gap-2 mb-1">
-          {project.tech.map((t) => (
-            <span
-              key={t}
-              className="px-2.5 py-1 rounded-full text-[11px] font-medium border"
-              style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#839cb5" }}
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-        <ProjectButtons project={project} />
-      </div>
-    </FadeIn>
-  );
-}
-
-/* ── Small project card (grid) ───────────────────────────────────── */
-function GridCard({ project, delay }: { project: Project; delay: number }) {
-  return (
-    <FadeIn delay={delay} className="flex flex-col group">
-      {/* Image */}
-      <div className="relative rounded-2xl overflow-hidden mb-4" style={{ aspectRatio: "16/10" }}>
-        <Image
-          src={project.image}
-          alt={project.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-        {/* Hover play */}
-        <a
-          href={project.demoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
-          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(3px)" }}
-        >
-          <motion.div
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-xs"
-            style={{ background: project.accentColor, color: "#080808" }}
-            whileHover={{ scale: 1.07 }}
-          >
-            <PlayIcon />
-            Watch Demo
-          </motion.div>
-        </a>
-      </div>
-
-      {/* Text */}
-      <p className="text-[10px] font-semibold tracking-widest uppercase mb-1.5" style={{ color: project.accentColor }}>
-        {project.tagline}
-      </p>
-      <ImpactBadge text={project.impact} color={project.accentColor} />
-      <h3 className="text-lg font-bold text-white mb-2 leading-snug">{project.name}</h3>
-      <p className="text-blue-50 text-sm leading-relaxed mb-2 flex-1">{project.description}</p>
-
-      {/* Tech pills */}
-      <div className="flex flex-wrap gap-1.5 mb-1">
-        {project.tech.map((t) => (
-          <span
-            key={t}
-            className="px-2 py-0.5 rounded-full text-[10px] font-medium border"
-            style={{ borderColor: "rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)", color: "#839cb5" }}
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-      <ProjectButtons project={project} small />
-    </FadeIn>
-  );
-}
-
-/* ── Main section ────────────────────────────────────────────────── */
 export default function ShowcaseSection() {
   const [featured, ...rest] = PROJECTS;
 
   return (
-    <section id="projects" className="w-full bg-black">
-      {/* Section header */}
-      <div className="px-5 md:px-20 pt-20 pb-6">
-        <motion.div
-          className="flex flex-col items-center text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="eyebrow-badge mb-5">🚀 Featured Work</div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-            Projects I&apos;ve Built
-          </h2>
-          <p className="text-blue-50 text-sm md:text-base mt-4 max-w-xl">
-            Production systems, hackathon wins, and research prototypes —
-            every project ships, runs, and has a demo.
-          </p>
-        </motion.div>
-      </div>
+    <section id="projects" className="section-padding">
+      <SectionHeading
+        index="01"
+        eyebrow="Selected work"
+        title="Projects I've Built"
+        sub="Production systems, hackathon builds and research prototypes. Every one ships with a demo."
+      />
 
-      {/* ── Featured (full-width hero card) ── */}
-      <div className="px-5 md:px-20 py-10">
-        <FeaturedCard project={featured} />
-      </div>
+      <div className="mx-auto max-w-6xl">
+        <FadeIn className="flex flex-col items-start gap-8 xl:flex-row xl:gap-12">
+          <div className="w-full xl:w-[58%]">
+            <Thumb p={featured} big sizes="(max-width: 1280px) 100vw, 680px" />
+          </div>
+          <div className="flex w-full flex-col justify-center xl:w-[42%]">
+            <p className="mb-2 font-mono text-xs uppercase tracking-widest" style={{ color: featured.accent }}>
+              {featured.tagline}
+            </p>
+            <ImpactBadge text={featured.impact} color={featured.accent} />
+            <h3 className="mb-3 text-2xl font-bold leading-tight text-white md:text-3xl lg:text-4xl text-balance">
+              {featured.name}
+            </h3>
+            <p className="mb-5 text-sm leading-relaxed text-[var(--text-3)] md:text-base text-pretty">{featured.description}</p>
+            <TechList tech={featured.tech} />
+            <ProjectLinks p={featured} />
+          </div>
+        </FadeIn>
 
-      {/* Divider */}
-      <div className="mx-5 md:mx-20 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+        <div className="my-14 h-px bg-white/[0.06]" />
 
-      {/* ── Grid: remaining 4 projects ── */}
-      <div className="px-5 md:px-20 py-12">
-        <motion.p
-          className="text-xs font-semibold tracking-widest uppercase mb-8 text-center"
-          style={{ color: "var(--text-3)" }}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          More Projects
-        </motion.p>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-10 xl:gap-12 max-w-5xl mx-auto">
-          {rest.map((project, i) => (
-            <GridCard key={project.id} project={project} delay={i * 0.08} />
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10 xl:gap-14">
+          {rest.map((p, i) => (
+            <FadeIn key={p.id} delay={(i % 2) * 0.08} className="flex flex-col">
+              <Thumb p={p} sizes="(max-width: 768px) 100vw, 560px" />
+              <p className="mb-1.5 mt-5 font-mono text-[11px] uppercase tracking-widest" style={{ color: p.accent }}>
+                {p.tagline}
+              </p>
+              <ImpactBadge text={p.impact} color={p.accent} />
+              <h3 className="mb-2 text-xl font-bold leading-snug text-white">{p.name}</h3>
+              <p className="mb-4 flex-1 text-sm leading-relaxed text-[var(--text-3)] text-pretty">{p.description}</p>
+              <TechList tech={p.tech} small />
+              <ProjectLinks p={p} small />
+            </FadeIn>
           ))}
         </div>
+
+        <p className="mt-14 text-center text-sm text-[var(--text-3)]">
+          More on{" "}
+          <a
+            href="https://github.com/utkarshhzz?tab=repositories"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[var(--gold)] underline-offset-4 hover:underline"
+          >
+            GitHub ↗
+          </a>
+        </p>
       </div>
     </section>
   );

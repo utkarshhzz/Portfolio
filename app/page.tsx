@@ -1,83 +1,93 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Navbar          from "@/components/layout/Navbar";
 import Footer          from "@/components/layout/Footer";
 import SectionProgress from "@/components/shared/SectionProgress";
 import ScrollProgress  from "@/components/shared/ScrollProgress";
 import CommandPalette  from "@/components/layout/CommandPalette";
 
-import EntranceScreen   from "@/sections/EntranceScreen";
-import Hero             from "@/sections/Hero";
-import IdentitySection  from "@/sections/IdentitySection";
-import LogoShowcase     from "@/sections/LogoShowcase";
-import ShowcaseSection  from "@/sections/ShowcaseSection";
-import FeatureCards     from "@/sections/FeatureCards";
-import Experience       from "@/sections/Experience";
-import Education        from "@/sections/Education";
-import StatsSection     from "@/sections/StatsSection";
+import EntranceScreen      from "@/sections/EntranceScreen";
+import Hero                from "@/sections/Hero";
+import IdentitySection     from "@/sections/IdentitySection";
+import LogoShowcase        from "@/sections/LogoShowcase";
+import ShowcaseSection     from "@/sections/ShowcaseSection";
+import Experience          from "@/sections/Experience";
 import AchievementsSection from "@/sections/Achievements";
-import Skills           from "@/sections/Skills";
-import Testimonials     from "@/sections/Testimonials";
-import Contact          from "@/sections/Contact";
+import FeatureCards        from "@/sections/FeatureCards";
+import Skills              from "@/sections/Skills";
+import Education           from "@/sections/Education";
+import StatsSection        from "@/sections/StatsSection";
+import Contact             from "@/sections/Contact";
+
+const ENTRANCE_KEY = "uk-entrance-seen";
+const noopSubscribe = () => () => {};
+
+/** True once the entrance quote has been shown in this browser session. */
+function useEntranceSeen() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => {
+      try { return sessionStorage.getItem(ENTRANCE_KEY) === "1"; } catch { return false; }
+    },
+    () => false,
+  );
+}
 
 export default function Home() {
-  const [cmdOpen,      setCmdOpen]      = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
   const [entranceDone, setEntranceDone] = useState(false);
+  const seen = useEntranceSeen();
+
+  const finishEntrance = useCallback(() => {
+    try { sessionStorage.setItem(ENTRANCE_KEY, "1"); } catch { /* private mode */ }
+    window.scrollTo({ top: 0, behavior: "instant" });
+    setEntranceDone(true);
+  }, []);
+
+  // ⌘K / Ctrl+K toggles the command palette
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCmdOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <>
-      {/* ── Cinematic entrance (overlays everything) */}
-      {!entranceDone && (
-        <EntranceScreen
-          onDone={() => {
-            window.scrollTo({ top: 0, behavior: "instant" });
-            setEntranceDone(true);
-          }}
-        />
-      )}
+      {!entranceDone && !seen && <EntranceScreen onDone={finishEntrance} />}
 
-      {/* ── Navigation */}
-      <Navbar />
+      <a
+        href="#identity"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[10000] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-black"
+      >
+        Skip to content
+      </a>
 
-      {/* ── Side section progress dots (desktop only) */}
+      <Navbar onOpenPalette={() => setCmdOpen(true)} />
       <SectionProgress />
-
-      {/* ── Mobile-only thin scroll progress bar */}
       <ScrollProgress />
 
-      {/* ── Page content */}
       <main>
-        {/*
-          Flow:
-          1. Entrance quote screen (cinematic)
-          2. Hero — scroll-driven canvas frames (CLEAN, no text)
-          3. IdentitySection — name / bio / CTAs / stats (after hero)
-          4. LogoShowcase — dual-row tech marquee
-          5. ShowcaseSection — featured + 2 smaller projects (reference layout)
-          6. FeatureCards — 3-col ability cards
-          7. Experience — GlowCard left + timeline right (reference layout)
-          8. Skills — 5-col tech icon grid (reference layout)
-          9. Testimonials — GlowCard masonry columns (reference layout)
-          10. Contact — form left + decorative visual right
-        */}
         <Hero />
         <IdentitySection />
         <LogoShowcase />
         <ShowcaseSection />
-        <FeatureCards />
         <Experience />
+        <AchievementsSection />
+        <FeatureCards />
+        <Skills />
         <Education />
         <StatsSection />
-        <AchievementsSection />
-        <Skills />
-        <Testimonials />
         <Contact />
       </main>
 
       <Footer />
 
-      {/* ── Command palette */}
       <CommandPalette isOpen={cmdOpen} onClose={() => setCmdOpen(false)} />
     </>
   );

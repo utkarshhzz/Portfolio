@@ -4,147 +4,142 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TOTAL_FRAMES = 102;
-const FRAME_PATH = (n: number) =>
-  `/hero-frames/Portfolio_utk_${String(n).padStart(3, "0")}.png?v=2`;
+// Frames are content-addressed by name: if you re-export them, rename (e.g. frame-v2_000.webp)
+// because they are served with a 1-year immutable cache header.
+const FRAME_PATH = (n: number) => `/hero-frames/frame_${String(n).padStart(3, "0")}.webp`;
 
-// Taller scrub so the sequence plays out fully before page scrolls away
+// Taller scrub so the sequence plays out fully before the page scrolls on
 const SCRUB_HEIGHT = "350vh";
 
 export default function Hero() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const canvasRef    = useRef<HTMLCanvasElement>(null);
   const imagesRef    = useRef<HTMLImageElement[]>([]);
   const frameRef     = useRef(0);
-  const drawPendingRef = useRef(false);
-  const [loaded,   setLoaded]   = useState(false);
-  const [loadPct,  setLoadPct]  = useState(0);
+  const rafRef       = useRef<number | null>(null);
+  const [loaded,  setLoaded]  = useState(false);
+  const [loadPct, setLoadPct] = useState(0);
 
-  // ── Draw frame (cover-fit, debounced via rAF) ────────────────────
-  const drawFrame = useCallback((idx: number) => {
-    if (drawPendingRef.current) return;
-    const canvas = canvasRef.current;
-    const img = imagesRef.current[idx];
-    if (!canvas || !img?.complete || img.naturalWidth === 0) return;
-    drawPendingRef.current = true;
-    requestAnimationFrame(() => {
+  // Draw the *current* frame on the next animation frame (coalesces bursts of scroll events)
+  const requestDraw = useCallback(() => {
+    if (rafRef.current !== null) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      const canvas = canvasRef.current;
+      const img = imagesRef.current[frameRef.current];
+      if (!canvas || !img?.complete || img.naturalWidth === 0) return;
       const ctx = canvas.getContext("2d");
-      if (!ctx) { drawPendingRef.current = false; return; }
+      if (!ctx) return;
       const { width: cw, height: ch } = canvas;
       const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
-      const dx = (cw - img.naturalWidth * scale) / 2;
-      const dy = (ch - img.naturalHeight * scale) / 2;
+      const w = img.naturalWidth * scale;
+      const h = img.naturalHeight * scale;
       ctx.clearRect(0, 0, cw, ch);
-      ctx.drawImage(img, dx, dy, img.naturalWidth * scale, img.naturalHeight * scale);
-      drawPendingRef.current = false;
+      ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
     });
   }, []);
 
-  // ── Preload all frames before allowing entrance ──────────────────
+  // Preload every frame
   useEffect(() => {
     let done = 0;
+    let cancelled = false;
+    const tick = () => {
+      if (cancelled) return;
+      done++;
+      setLoadPct(Math.round((done / TOTAL_FRAMES) * 100));
+      if (done === TOTAL_FRAMES) setLoaded(true);
+    };
     const imgs: HTMLImageElement[] = [];
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
-      img.src = FRAME_PATH(i);
+      img.decoding = "async";
       img.onload = () => {
-        done++;
-        setLoadPct(Math.round((done / TOTAL_FRAMES) * 100));
-        if (done === TOTAL_FRAMES) setLoaded(true);
-        if (i === 0) drawFrame(0);
+        tick();
+        if (i === frameRef.current) requestDraw();
       };
-      img.onerror = () => { 
-        done++; 
-        setLoadPct(Math.round((done / TOTAL_FRAMES) * 100));
-        if (done === TOTAL_FRAMES) setLoaded(true);
-      };
+      img.onerror = tick;
+      img.src = FRAME_PATH(i);
       imgs[i] = img;
     }
     imagesRef.current = imgs;
-  }, [drawFrame]);
+    return () => { cancelled = true; };
+  }, [requestDraw]);
 
-  // ── Resize canvas to fill viewport ───────────────────────────────
+  // Keep the canvas sized to the viewport
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const resize = () => {
-      canvas.width  = window.innerWidth;
-      canvas.height = window.innerHeight;
-      drawFrame(frameRef.current);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width  = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      requestDraw();
     };
     resize();
     window.addEventListener("resize", resize, { passive: true });
     return () => window.removeEventListener("resize", resize);
-  }, [drawFrame]);
+  }, [requestDraw]);
 
-  // ── Scroll scrub ─────────────────────────────────────────────────
+  // Map scroll position → frame
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
     const onScroll = () => {
-      const rect = container.getBoundingClientRect();
-      // rect.top goes negative as we scroll down; total scroll distance = height - viewport
-      const totalScroll = container.offsetHeight - window.innerHeight;
-      const scrolled = -rect.top;
-      const progress = Math.max(0, Math.min(1, scrolled / totalScroll));
+      const total = container.offsetHeight - window.innerHeight;
+      const progress = Math.max(0, Math.min(1, -container.getBoundingClientRect().top / total));
       const frame = Math.min(TOTAL_FRAMES - 1, Math.round(progress * (TOTAL_FRAMES - 1)));
       if (frame !== frameRef.current) {
         frameRef.current = frame;
-        drawFrame(frame);
+        requestDraw();
       }
     };
-
     window.addEventListener("scroll", onScroll, { passive: true });
-    // Draw initial frame
-    drawFrame(0);
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [loaded, drawFrame]);
+    requestDraw();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [loaded, requestDraw]);
 
   return (
-    /* Tall container — scroll height determines how long the sequence plays */
     <section
       id="hero"
       ref={containerRef}
       style={{ height: SCRUB_HEIGHT }}
       className="relative"
+      aria-label="Intro animation"
     >
-      {/* Sticky viewport fills the screen while user scrolls through container */}
-      <div className="sticky top-0 w-full h-screen overflow-hidden bg-black">
-        {/* Canvas */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 z-[1]"
-          style={{ display: "block" }}
+          className="absolute inset-0 z-[1] block h-full w-full"
+          role="img"
+          aria-label="Animated portrait of Utkarsh Kumar"
         />
 
-        {/* Bottom fade into next section */}
         <div
-          className="absolute bottom-0 left-0 right-0 h-48 z-[5] pointer-events-none"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-48"
           style={{ background: "linear-gradient(to top, #080808 0%, transparent 100%)" }}
         />
 
-        {/* Scroll hint */}
         {loaded && (
           <motion.div
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
+            className="absolute bottom-10 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2"
             initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: [0, 0.8, 0] }}
-            transition={{ duration: 3, repeat: Infinity, delay: 2 }}
+            animate={{ opacity: [0, 0.85, 0] }}
+            transition={{ duration: 3, repeat: Infinity, delay: 1.2 }}
+            aria-hidden
           >
-            <span className="text-[10px] tracking-[0.3em] uppercase text-white/40">
-              Scroll
-            </span>
-            <motion.div
-              className="w-px h-8"
-              style={{ background: "linear-gradient(to bottom, rgba(196,154,60,0.7), transparent)" }}
-              animate={{ scaleY: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 1.8, repeat: Infinity }}
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/50">Scroll</span>
+            <span
+              className="h-8 w-px"
+              style={{ background: "linear-gradient(to bottom, rgba(196,154,60,0.8), transparent)" }}
             />
           </motion.div>
         )}
 
-        {/* Loading overlay */}
         <AnimatePresence>
           {!loaded && (
             <motion.div
@@ -153,26 +148,17 @@ export default function Hero() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.8 }}
               className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-black"
+              role="status"
+              aria-live="polite"
             >
-              {/* Spinner */}
-              <motion.div
-                className="w-10 h-10 rounded-full border-2 border-transparent"
-                style={{
-                  borderTopColor: "#C49A3C",
-                  borderRightColor: "rgba(196,154,60,0.2)",
-                }}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-              />
-              {/* Progress bar */}
-              <div className="w-40 h-px bg-white/5 relative overflow-hidden">
+              <div className="relative h-px w-40 overflow-hidden bg-white/10">
                 <div
-                  className="h-full transition-all duration-150"
-                  style={{ width: `${loadPct}%`, background: "#C49A3C" }}
+                  className="h-full transition-[width] duration-150"
+                  style={{ width: `${loadPct}%`, background: "var(--gold)" }}
                 />
               </div>
-              <p className="text-[10px] tracking-[0.25em] uppercase tabular-nums text-white/30">
-                {loadPct}%
+              <p className="font-mono text-[10px] uppercase tracking-[0.25em] tabular-nums text-white/40">
+                Loading {loadPct}%
               </p>
             </motion.div>
           )}
