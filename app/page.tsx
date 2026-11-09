@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MotionConfig } from "framer-motion";
 import Navbar          from "@/components/layout/Navbar";
 import Footer          from "@/components/layout/Footer";
 import SectionProgress from "@/components/shared/SectionProgress";
@@ -35,7 +36,8 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    // reducedMotion="user": Framer animations honour the OS "reduce motion" setting
+    <MotionConfig reducedMotion="user">
       <a
         href="#identity"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[10000] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-black"
@@ -64,6 +66,6 @@ export default function Home() {
       <Footer />
 
       <CommandPalette isOpen={cmdOpen} onClose={() => setCmdOpen(false)} />
-    </>
+    </MotionConfig>
   );
 }

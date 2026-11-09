@@ -5,7 +5,8 @@ const isDev = process.env.NODE_ENV !== "production";
 const csp = [
   "default-src 'self'",
   // Next.js inlines bootstrap scripts; eval is only needed by the dev server (HMR).
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // Vercel Analytics is served from /_vercel/* in production; dev uses its debug CDN.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval' https://va.vercel-scripts.com" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "img-src 'self' data: blob:",
@@ -23,9 +24,12 @@ const securityHeaders = [
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "Content-Security-Policy", value: csp },
+  // Isolate the browsing context from cross-origin popups/openers (tab-nabbing, XS-leaks)
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
 ];
 
 const nextConfig: NextConfig = {

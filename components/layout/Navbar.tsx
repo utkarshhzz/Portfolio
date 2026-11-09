@@ -45,13 +45,13 @@ export default function Navbar({ onOpenPalette }: { onOpenPalette: () => void })
         <button
           type="button"
           onClick={() => { setMobileOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-          aria-label="Utkarsh Kumar, back to top"
           className="flex items-center gap-2.5 font-semibold tracking-tight text-[var(--text-1)]"
         >
           <span aria-hidden className="grid size-8 place-items-center rounded-lg border border-[var(--gold-border)] bg-[var(--gold-dim)] font-mono text-[13px] text-[var(--gold)]">
             UK
           </span>
           <span className="text-[15px]">Utkarsh Kumar</span>
+          <span className="sr-only">, back to top</span>
         </button>
 
         <nav aria-label="Main" className="hidden lg:block">

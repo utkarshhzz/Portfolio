@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Mona_Sans, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const SITE_URL = "https://utkarshkumar-theta.vercel.app";
@@ -10,14 +12,14 @@ const mona = Mona_Sans({
   display: "swap",
 });
 
-// Mono and serif are not needed for first paint, so skip their preload
+// Mono is used in the hero (eyebrow, credentials): preload it to avoid a layout shift on swap
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
-  preload: false,
 });
 
+// Serif only appears mid-scroll (hero quote), so it can load lazily
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
@@ -93,6 +95,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd).replace(/</g, "\\u003c") }}
         />
         {children}
+        {/* Privacy-friendly, cookie-less. Enable both in Vercel → Project → Analytics / Speed Insights. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

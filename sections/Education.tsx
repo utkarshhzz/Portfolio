@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { MapPin } from "lucide-react";
+import { MapPin, Award } from "lucide-react";
 import SectionHeading from "@/components/shared/SectionHeading";
 
 const EDUCATION = [
@@ -32,6 +32,11 @@ const EDUCATION = [
     type: "Concurrent degree",
     accent: "#60a5fa",
   },
+];
+
+/** From the resume. Add a `url` field and link it once the certificate URL is public. */
+const CERTIFICATIONS = [
+  { name: "Develop Generative AI Applications: Get Started", issuer: "Coursera" },
 ];
 
 export default function Education() {
@@ -77,7 +82,7 @@ export default function Education() {
             </div>
 
             <div
-              className="flex flex-wrap items-end justify-between gap-4 rounded-xl px-5 py-4"
+              className="grid grid-cols-[1fr_auto] items-end gap-4 rounded-xl px-5 py-4"
               style={{ background: `${e.accent}0a`, border: `1px solid ${e.accent}1a` }}
             >
               <div className="min-w-0">
@@ -95,6 +100,34 @@ export default function Education() {
           </motion.li>
         ))}
       </ul>
+
+      <motion.div
+        className="mx-auto mt-6 max-w-6xl rounded-2xl border border-white/[0.07] bg-[rgba(14,14,16,0.7)] p-6 md:p-7"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <h3 className="mb-4 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-[var(--text-3)]">
+          <Award size={14} className="text-[var(--gold)]" /> Certifications
+        </h3>
+        <ul className="flex flex-wrap gap-3">
+          {CERTIFICATIONS.map((c) => (
+            <li
+              key={c.name}
+              className="flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] px-4 py-3"
+            >
+              <span className="grid size-9 place-items-center rounded-lg bg-[rgba(196,154,60,0.1)] text-[var(--gold)]">
+                <Award size={16} />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-white">{c.name}</span>
+                <span className="block text-xs text-[var(--text-3)]">{c.issuer}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </motion.div>
     </section>
   );
 }

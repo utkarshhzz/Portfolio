@@ -70,6 +70,15 @@ section[id] { scroll-margin-top: 72px; }
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+/* Hero intro: pure CSS so it runs on first paint, before hydration (keeps LCP fast) */
+@keyframes heroIn {
+  /* 0.01, not 0: Chrome ignores opacity-0 paints for LCP, and compositor-driven
+     fades never report a new paint, which pushed LCP out to hydration time */
+  from { opacity: 0.01; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+.hero-in { animation: heroIn .7s cubic-bezier(.22,1,.36,1) both; }
+
 @keyframes popIn {
   from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
   to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }

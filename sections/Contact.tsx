@@ -24,6 +24,8 @@ type Status = "idle" | "sending" | "sent" | "mailto" | "error";
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  // Honeypot: hidden from people, bots fill it in. Formspree silently drops submissions where _gotcha is set.
+  const [gotcha, setGotcha] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [copied, setCopied] = useState(false);
 
@@ -38,6 +40,7 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (gotcha) { setStatus("sent"); return; } // bot: pretend success, send nothing
     if (!FORMSPREE_ID) {
       openMailto();
       setStatus("mailto");
@@ -48,7 +51,7 @@ export default function Contact() {
       const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ ...form, _subject: `Portfolio enquiry from ${form.name}` }),
+        body: JSON.stringify({ ...form, _gotcha: gotcha, _subject: `Portfolio enquiry from ${form.name}` }),
       });
       if (!res.ok) throw new Error(String(res.status));
       setStatus("sent");
@@ -118,17 +121,21 @@ export default function Contact() {
               </motion.div>
             ) : (
               <motion.form key="form" onSubmit={handleSubmit} className="flex flex-col gap-5" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+                  <label htmlFor="c-company">Company website</label>
+                  <input id="c-company" type="text" name="_gotcha" tabIndex={-1} autoComplete="off" value={gotcha} onChange={(e) => setGotcha(e.target.value)} />
+                </div>
                 <div>
                   <label htmlFor="c-name" className="mb-2 block text-sm font-medium text-[var(--text-2)]">Name</label>
-                  <input id="c-name" className="field" type="text" name="name" value={form.name} required autoComplete="name" onChange={update("name")} placeholder="What's your name?" />
+                  <input id="c-name" className="field" type="text" name="name" value={form.name} required maxLength={100} autoComplete="name" onChange={update("name")} placeholder="What's your name?" />
                 </div>
                 <div>
                   <label htmlFor="c-email" className="mb-2 block text-sm font-medium text-[var(--text-2)]">Email</label>
-                  <input id="c-email" className="field" type="email" name="email" value={form.email} required autoComplete="email" onChange={update("email")} placeholder="you@company.com" />
+                  <input id="c-email" className="field" type="email" name="email" value={form.email} required maxLength={254} autoComplete="email" onChange={update("email")} placeholder="you@company.com" />
                 </div>
                 <div>
                   <label htmlFor="c-msg" className="mb-2 block text-sm font-medium text-[var(--text-2)]">Message</label>
-                  <textarea id="c-msg" className="field resize-y" name="message" value={form.message} required rows={5} onChange={update("message")} placeholder="A role, a project, or just hello…" />
+                  <textarea id="c-msg" className="field resize-y" name="message" value={form.message} required minLength={10} maxLength={4000} rows={5} onChange={update("message")} placeholder="A role, a project, or just hello…" />
                 </div>
 
                 {status === "error" && (

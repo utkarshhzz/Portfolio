@@ -37,6 +37,10 @@ A switcher pill appears whenever `?hero=` is in the URL. To change the default, 
 
 `GET /api/github` (`app/api/github/route.ts`) fetches the GitHub profile and contribution calendar on the server and caches it for an hour, so visitors never hit GitHub rate limits. Optionally set `GITHUB_TOKEN` in Vercel for a higher API limit.
 
+## Analytics
+
+[Vercel Web Analytics](https://vercel.com/docs/analytics) and Speed Insights are wired into `app/layout.tsx` (cookie-less, no consent banner needed). Turn them on once in Vercel → Project → **Analytics** and **Speed Insights**. Until then the two `/_vercel/*` scripts return 404, which is harmless.
+
 ## Common edits
 
 - **New hackathon result:** drop the photo in `public/achievements/` and add an entry at the top of `ACHIEVEMENTS` in `data/achievements.ts`. Podium and summary counts update automatically.

@@ -165,7 +165,11 @@ function NeuralCanvas({ progress, onFail }: { progress: MotionValue<number>; onF
     let disposed = false;
     let cleanup = () => {};
 
-    (async () => {
+    // Respect Data Saver: keep the static gradient instead of downloading three.js
+    const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (conn?.saveData) return;
+
+    const init = async () => {
       const THREE = await import("three");
       const canvas = canvasRef.current;
       if (disposed || !canvas) return;
@@ -240,7 +244,7 @@ function NeuralCanvas({ progress, onFail }: { progress: MotionValue<number>; onF
         mat.uniforms.uPixelRatio.value = renderer.getPixelRatio();
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        layout = w < 768 ? { x: 0, y: 1.25, scale: 0.72 } : { x: w > 1280 ? 2.1 : 1.7, y: 0, scale: 1 };
+        layout = w < 768 ? { x: 0, y: 1.6, scale: 0.62 } : { x: w > 1280 ? 2.1 : 1.7, y: 0, scale: 1 };
       };
       resize();
       const ro = new ResizeObserver(resize);
@@ -308,10 +312,25 @@ function NeuralCanvas({ progress, onFail }: { progress: MotionValue<number>; onF
         lineMat.dispose();
         renderer.dispose();
       };
-    })().catch(onFail);
+    };
+
+    // Load the 3D scene only after the page has loaded and the main thread is idle,
+    // so the text (LCP) and interactivity are never blocked by three.js.
+    let idleId = 0;
+    let timer = 0;
+    const schedule = () => {
+      const run = () => { if (!disposed) init().catch(onFail); };
+      if ("requestIdleCallback" in window) idleId = window.requestIdleCallback(run, { timeout: 2500 });
+      else timer = setTimeout(run, 600) as unknown as number;
+    };
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
 
     return () => {
       disposed = true;
+      window.removeEventListener("load", schedule);
+      if (idleId) window.cancelIdleCallback(idleId);
+      if (timer) clearTimeout(timer);
       cleanup();
     };
   }, [progress, onFail]);

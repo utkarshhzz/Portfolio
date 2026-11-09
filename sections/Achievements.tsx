@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -111,6 +111,7 @@ function Lightbox({
   onChange: (i: number | null) => void;
 }) {
   const [imgIdx, setImgIdx] = useState(0);
+  const touchX = useRef<number | null>(null);
   const item = openIndex === null ? null : ACHIEVEMENTS[openIndex];
   const total = ACHIEVEMENTS.length;
 
@@ -146,7 +147,16 @@ function Lightbox({
         >
           {item && image && (
             <>
-              <div className="relative min-h-[42dvh] flex-1 bg-black lg:min-h-[78dvh]">
+              <div
+                className="relative min-h-[42dvh] flex-1 touch-pan-y bg-black lg:min-h-[78dvh]"
+                onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
+                onTouchEnd={(e) => {
+                  if (touchX.current === null) return;
+                  const dx = e.changedTouches[0].clientX - touchX.current;
+                  touchX.current = null;
+                  if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); // swipe between achievements
+                }}
+              >
                 <Image
                   key={image.src}
                   src={image.src}

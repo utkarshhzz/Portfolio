@@ -20,7 +20,7 @@ export default function LogoShowcase() {
               {STACK.map((name) => (
                 <li
                   key={`${copy}-${name}`}
-                  className="flex items-center whitespace-nowrap px-6 text-xl font-semibold tracking-tight text-white/35 transition-colors duration-300 hover:text-[var(--gold)] md:px-8 md:text-2xl"
+                  className="flex items-center whitespace-nowrap px-6 text-xl font-semibold tracking-tight text-white/55 transition-colors duration-300 hover:text-[var(--gold)] md:px-8 md:text-2xl"
                 >
                   {name}
                   <span className="ml-12 size-1.5 rounded-full bg-[var(--gold)]/40 md:ml-16" />

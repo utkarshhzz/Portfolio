@@ -5,8 +5,6 @@ import { ArrowDown, ArrowUpRight, Download } from "lucide-react";
 import { LINKS, scrollToSection } from "@/lib/sections";
 import { PODIUM_COUNT } from "@/data/achievements";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
 const CREDENTIALS = [
   "IEEE IGARSS 2026 author",
   `${PODIUM_COUNT} hackathon podiums`,
@@ -40,7 +38,7 @@ export default function HeroContent({ progress }: { progress: MotionValue<number
       {/* Legibility scrim: strongest behind the text column */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-[2] bg-[linear-gradient(to_top,#080808_0%,rgba(8,8,8,0.85)_32%,transparent_70%)] md:bg-[linear-gradient(90deg,rgba(8,8,8,0.92)_0%,rgba(8,8,8,0.6)_38%,transparent_62%)]"
+        className="pointer-events-none absolute inset-0 z-[2] bg-[linear-gradient(to_top,#080808_0%,rgba(8,8,8,0.9)_45%,rgba(8,8,8,0.4)_62%,transparent_78%)] md:bg-[linear-gradient(90deg,rgba(8,8,8,0.92)_0%,rgba(8,8,8,0.6)_38%,transparent_62%)]"
       />
 
       {/* ── Phase A ── */}
@@ -50,35 +48,29 @@ export default function HeroContent({ progress }: { progress: MotionValue<number
       >
         <div className="mx-auto w-full max-w-7xl px-5 pb-24 md:px-10 md:pb-0">
           <div className="max-w-2xl">
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: EASE }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-[rgba(74,222,128,0.25)] bg-[rgba(8,8,8,0.6)] px-3 py-1 text-xs font-medium text-[#86efac] backdrop-blur"
+            <p
+              style={{ animationDelay: "0.1s" }}
+              className="hero-in mb-6 inline-flex items-center gap-2 rounded-full border border-[rgba(74,222,128,0.25)] bg-[rgba(8,8,8,0.6)] px-3 py-1 text-xs font-medium text-[#86efac] backdrop-blur"
             >
               <span className="relative flex size-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ade80] opacity-60" />
                 <span className="relative inline-flex size-2 rounded-full bg-[#4ade80]" />
               </span>
               Open to SWE / ML roles &amp; internships
-            </motion.p>
+            </p>
 
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.18, ease: EASE }}
-              className="mb-3 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[var(--gold)]"
+            <p
+              style={{ animationDelay: "0.18s" }}
+              className="hero-in mb-3 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.24em] text-[var(--gold)]"
             >
               <span aria-hidden className="h-px w-8 bg-[var(--gold)]" />
               AI Systems Engineer
-            </motion.p>
+            </p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.24, ease: EASE }}
-              className="mb-5 font-extrabold leading-[0.92] tracking-[-0.045em] text-balance"
+            <h1
+              className="hero-in mb-5 font-extrabold leading-[0.92] tracking-[-0.045em] text-balance"
               style={{
+                animationDelay: "0.24s",
                 fontSize: "clamp(3.1rem, 8.5vw, 7.5rem)",
                 background: "linear-gradient(135deg, #F4F1E8 35%, #D9B45A 100%)",
                 WebkitBackgroundClip: "text",
@@ -87,23 +79,19 @@ export default function HeroContent({ progress }: { progress: MotionValue<number
               }}
             >
               Utkarsh Kumar
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.34, ease: EASE }}
-              className="mb-8 max-w-xl text-base leading-relaxed text-[var(--text-2)]/85 md:text-lg text-pretty"
+            <p
+              style={{ animationDelay: "0.34s" }}
+              className="hero-in mb-8 max-w-xl text-base leading-relaxed text-[var(--text-2)]/85 md:text-lg text-pretty"
             >
               I build production AI: semantic search over <strong className="font-semibold text-[var(--text-1)]">110M+ records</strong>,
               multi-agent LLM systems and real-time computer vision. Tested, monitored and shipped.
-            </motion.p>
+            </p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.42, ease: EASE }}
-              className="mb-9 flex flex-wrap gap-3"
+            <div
+              style={{ animationDelay: "0.42s" }}
+              className="hero-in mb-9 flex flex-wrap gap-3"
             >
               <button type="button" className="btn-primary" onClick={() => scrollToSection("projects")}>
                 View my work <ArrowUpRight size={15} strokeWidth={2.5} />
@@ -118,13 +106,11 @@ export default function HeroContent({ progress }: { progress: MotionValue<number
               >
                 Get in touch
               </button>
-            </motion.div>
+            </div>
 
-            <motion.ul
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.55 }}
-              className="flex flex-col gap-y-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--text-3)] sm:flex-row sm:flex-wrap sm:gap-x-5"
+            <ul
+              style={{ animationDelay: "0.55s" }}
+              className="hero-in flex flex-col gap-y-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-[var(--text-3)] sm:flex-row sm:flex-wrap sm:gap-x-5"
             >
               {CREDENTIALS.map((c, i) => (
                 <li key={c} className="flex items-center gap-5">
@@ -132,7 +118,7 @@ export default function HeroContent({ progress }: { progress: MotionValue<number
                   {c}
                 </li>
               ))}
-            </motion.ul>
+            </ul>
           </div>
         </div>
       </motion.div>
