@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import Navbar          from "@/components/layout/Navbar";
 import Footer          from "@/components/layout/Footer";
 import SectionProgress from "@/components/shared/SectionProgress";
 import ScrollProgress  from "@/components/shared/ScrollProgress";
 import CommandPalette  from "@/components/layout/CommandPalette";
 
-import EntranceScreen      from "@/sections/EntranceScreen";
 import Hero                from "@/sections/Hero";
 import IdentitySection     from "@/sections/IdentitySection";
 import LogoShowcase        from "@/sections/LogoShowcase";
@@ -20,30 +19,8 @@ import Education           from "@/sections/Education";
 import StatsSection        from "@/sections/StatsSection";
 import Contact             from "@/sections/Contact";
 
-const ENTRANCE_KEY = "uk-entrance-seen";
-const noopSubscribe = () => () => {};
-
-/** True once the entrance quote has been shown in this browser session. */
-function useEntranceSeen() {
-  return useSyncExternalStore(
-    noopSubscribe,
-    () => {
-      try { return sessionStorage.getItem(ENTRANCE_KEY) === "1"; } catch { return false; }
-    },
-    () => false,
-  );
-}
-
 export default function Home() {
   const [cmdOpen, setCmdOpen] = useState(false);
-  const [entranceDone, setEntranceDone] = useState(false);
-  const seen = useEntranceSeen();
-
-  const finishEntrance = useCallback(() => {
-    try { sessionStorage.setItem(ENTRANCE_KEY, "1"); } catch { /* private mode */ }
-    window.scrollTo({ top: 0, behavior: "instant" });
-    setEntranceDone(true);
-  }, []);
 
   // ⌘K / Ctrl+K toggles the command palette
   useEffect(() => {
@@ -59,8 +36,6 @@ export default function Home() {
 
   return (
     <>
-      {!entranceDone && !seen && <EntranceScreen onDone={finishEntrance} />}
-
       <a
         href="#identity"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[10000] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-black"

@@ -92,12 +92,17 @@ section[id] { scroll-margin-top: 72px; }
 
   /* Navbar */
   .navbar {
-    @apply fixed inset-x-0 top-0 z-[100] px-5 md:px-10 transition-colors duration-300;
-    background: rgba(8,8,8,0.94);
+    @apply fixed inset-x-0 top-0 z-[100] px-5 md:px-10;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background-color .3s, border-color .3s;
+    &[data-solid="true"] {
+      background: rgba(8,8,8,0.94);
+      border-bottom-color: rgba(255,255,255,0.06);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+    }
     &:has(#mobile-menu) { background: #080808; }
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
   }
   .nav-link {
     @apply relative px-1 py-2 text-sm font-medium transition-colors duration-200;

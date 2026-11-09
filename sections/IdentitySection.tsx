@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ArrowUpRight, Download, Mail, Code2, BookOpen } from "lucide-react";
+import { Mail, Code2, BookOpen, MapPin } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/shared/BrandIcons";
-import { LINKS, scrollToSection } from "@/lib/sections";
+import { LINKS } from "@/lib/sections";
 import { PODIUM_COUNT } from "@/data/achievements";
 
 /* ── Animated counter ── */
@@ -44,7 +44,7 @@ const STATS = [
   { to: 350, suffix: "+", label: "LeetCode solved", sub: "DSA in C++ & Python" },
 ];
 
-const TAGS = ["Multi-Agent AI", "Semantic Search", "Computer Vision", "RAG / LangGraph", "Distributed Systems"];
+const FOCUS = ["Multi-Agent AI", "Semantic Search", "Computer Vision", "RAG / LangGraph", "Distributed Systems"];
 
 const SOCIALS = [
   { label: "GitHub", href: LINKS.github, icon: <GithubIcon size={17} /> },
@@ -71,50 +71,45 @@ function FadeUp({ children, delay = 0, className = "" }: { children: React.React
 
 export default function IdentitySection() {
   return (
-    <section id="identity" className="relative w-full bg-[#080808] pt-20 pb-24 md:pt-24 md:pb-28">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(196,154,60,0.25),transparent)]" />
-
+    <section id="identity" className="relative w-full pt-20 pb-24 md:pt-28 md:pb-28">
       <div className="mx-auto max-w-[1200px] px-5 md:px-14">
-        <div className="flex flex-col gap-14 xl:flex-row xl:items-start xl:justify-between xl:gap-20">
+        <div className="grid grid-cols-1 gap-14 xl:grid-cols-[1fr_400px] xl:gap-20">
 
-          {/* LEFT */}
-          <div className="flex-1">
+          {/* LEFT: bio */}
+          <div>
             <FadeUp>
-              <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] py-1.5 pl-1.5 pr-3.5 text-xs text-[var(--text-2)]">
-                <span className="grid size-6 place-items-center rounded-full bg-[var(--gold-dim)] text-[var(--gold)]">
-                  <BookOpen size={12} />
-                </span>
-                Published researcher · IEEE IGARSS 2026
+              <p className="section-eyebrow mb-6">
+                <span className="text-[var(--gold)]">00</span>
+                <span aria-hidden className="h-px w-8 bg-[var(--gold-border)]" />
+                <span>About</span>
               </p>
             </FadeUp>
 
-            <FadeUp delay={0.05}>
-              <h1
-                className="mb-5 font-extrabold leading-[0.95] tracking-tighter"
-                style={{
-                  fontSize: "clamp(3.25rem, 8vw, 7rem)",
-                  background: "linear-gradient(135deg, #EFEFEA 40%, #C49A3C 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Utkarsh<br />Kumar
-              </h1>
+            <FadeUp delay={0.06}>
+              <h2 className="mb-6 text-3xl font-bold leading-[1.1] tracking-tight md:text-5xl text-balance">
+                I take AI from <span className="text-[var(--gold)]">research</span> to{" "}
+                <span className="text-[var(--gold)]">production</span>.
+              </h2>
             </FadeUp>
 
-            <FadeUp delay={0.1}>
-              <div className="mb-6 flex items-center gap-3">
-                <span aria-hidden className="h-px w-10 bg-[var(--gold)]" />
-                <p className="text-sm font-bold uppercase tracking-widest text-[var(--gold)]">
-                  AI Systems Engineer
+            <FadeUp delay={0.12}>
+              <div className="mb-8 max-w-2xl space-y-4 text-base leading-relaxed text-[var(--text-2)]/85 md:text-lg text-pretty">
+                <p>
+                  I&apos;m a third-year computer science student at MIT Bengaluru, studying AI &amp; Data Science
+                  at IIT Guwahati alongside. Over the last year I&apos;ve shipped a candidate search engine over
+                  110M+ records at Provaantech, a real-time face recognition pipeline at AVSS Tech, and rainfall
+                  prediction research published at IEEE IGARSS 2026.
+                </p>
+                <p>
+                  I care about tests, latency budgets and monitoring as much as model accuracy, and I do my best
+                  work on small teams that ship fast.
                 </p>
               </div>
             </FadeUp>
 
-            <FadeUp delay={0.16}>
-              <ul className="mb-8 flex flex-wrap gap-2">
-                {TAGS.map((tag) => (
+            <FadeUp delay={0.18}>
+              <ul className="mb-8 flex flex-wrap gap-2" aria-label="Focus areas">
+                {FOCUS.map((tag) => (
                   <li
                     key={tag}
                     className="rounded-full border border-[rgba(196,154,60,0.2)] bg-[rgba(196,154,60,0.06)] px-3 py-1.5 text-xs font-semibold text-[var(--text-2)]"
@@ -125,30 +120,7 @@ export default function IdentitySection() {
               </ul>
             </FadeUp>
 
-            <FadeUp delay={0.22}>
-              <h2 className="mb-4 text-3xl font-bold leading-tight md:text-5xl text-balance">
-                I take AI from <span className="text-[var(--gold)]">research</span> to <span className="text-[var(--gold)]">production</span>.
-              </h2>
-              <p className="mb-8 max-w-xl text-base leading-relaxed text-[var(--text-2)]/85 md:text-lg text-pretty">
-                Third-year CS student at MIT Bengaluru, studying AI &amp; Data Science at IIT Guwahati
-                alongside. I&apos;ve shipped a candidate search engine over 110M+ records, real-time
-                face recognition and multi-agent LLM systems, and I care about tests, latency budgets
-                and monitoring as much as model accuracy.
-              </p>
-            </FadeUp>
-
-            <FadeUp delay={0.28}>
-              <div className="mb-8 flex flex-wrap gap-3">
-                <button type="button" className="btn-primary" onClick={() => scrollToSection("projects")}>
-                  See my work <ArrowUpRight size={15} strokeWidth={2.5} />
-                </button>
-                <a href={LINKS.resume} download="Utkarsh_Kumar_Resume.pdf" className="btn-secondary">
-                  <Download size={15} /> Download resume
-                </a>
-              </div>
-            </FadeUp>
-
-            <FadeUp delay={0.34}>
+            <FadeUp delay={0.24}>
               <ul className="flex flex-wrap gap-2.5">
                 {SOCIALS.map(({ label, href, icon }) => (
                   <li key={label}>
@@ -167,34 +139,37 @@ export default function IdentitySection() {
             </FadeUp>
           </div>
 
-          {/* RIGHT */}
-          <div className="flex flex-col gap-6 xl:w-[400px] xl:flex-shrink-0">
+          {/* RIGHT: photo + stats */}
+          <div className="flex flex-col gap-6">
             <motion.div
-              className="flex flex-col items-center gap-4"
-              initial={{ opacity: 0, scale: 0.92 }}
+              className="flex items-center gap-5 rounded-2xl border border-white/[0.07] bg-[rgba(14,14,16,0.7)] p-5"
+              initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, ease: EASE }}
             >
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <div aria-hidden className="absolute -inset-1 rounded-full bg-[linear-gradient(135deg,#C49A3C,#DDB854,#C49A3C)] opacity-60 blur-sm" />
-                <div className="relative size-44 overflow-hidden rounded-full border-2 border-[rgba(196,154,60,0.4)] md:size-52">
+                <div className="relative size-24 overflow-hidden rounded-full border-2 border-[rgba(196,154,60,0.4)] md:size-28">
                   <Image
                     src="/profile.webp"
                     alt="Portrait of Utkarsh Kumar"
                     fill
-                    sizes="(max-width: 768px) 176px, 208px"
+                    sizes="112px"
                     className="object-cover object-[50%_30%]"
                   />
                 </div>
               </div>
-              <p className="inline-flex items-center gap-2 rounded-full border border-[rgba(74,222,128,0.25)] bg-[rgba(74,222,128,0.06)] px-3 py-1 text-xs font-medium text-[#86efac]">
-                <span className="relative flex size-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#4ade80] opacity-60" />
-                  <span className="relative inline-flex size-2 rounded-full bg-[#4ade80]" />
-                </span>
-                Open to SWE / ML roles &amp; internships
-              </p>
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-white">Utkarsh Kumar</p>
+                <p className="text-sm text-[var(--text-3)]">AI Systems Engineer</p>
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-[var(--text-3)]">
+                  <MapPin size={12} /> Bengaluru, India
+                </p>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--text-3)]">
+                  <BookOpen size={12} /> IEEE IGARSS 2026 author
+                </p>
+              </div>
             </motion.div>
 
             <dl className="grid grid-cols-2 gap-3">
@@ -205,7 +180,7 @@ export default function IdentitySection() {
                   initial={{ opacity: 0, y: 24 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.65, delay: i * 0.08 + 0.2, ease: EASE }}
+                  transition={{ duration: 0.65, delay: i * 0.08 + 0.15, ease: EASE }}
                 >
                   <div aria-hidden className="pointer-events-none absolute -right-4 -top-4 size-16 rounded-full bg-[var(--gold)] opacity-15 blur-2xl" />
                   <dd

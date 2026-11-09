@@ -20,18 +20,16 @@ function longestStreak(days: Day[]): number {
   return best;
 }
 
-interface Profile {
-  public_repos: number;
-  followers: number;
-}
 interface Day {
   date: string;
   count: number;
   level: 0 | 1 | 2 | 3 | 4;
 }
-interface ContributionsResponse {
-  total: Record<string, number>;
-  contributions: Day[];
+/** Shape returned by app/api/github/route.ts */
+interface GithubPayload {
+  publicRepos: number | null;
+  total: number | null;
+  days: Day[] | null;
 }
 
 const LEVEL_BG = [
@@ -67,28 +65,22 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export default function StatsSection() {
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [repos, setRepos] = useState<number | null>(null);
   const [days, setDays] = useState<Day[] | null>(null);
   const [total, setTotal] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const ctrl = new AbortController();
-    const get = <T,>(url: string) =>
-      fetch(url, { signal: ctrl.signal }).then((r) => (r.ok ? (r.json() as Promise<T>) : null));
-
-    get<Profile>(`https://api.github.com/users/${USER}`)
-      .then((p) => { if (p && typeof p.public_repos === "number") setProfile(p); })
-      .catch(() => {});
-
-    get<ContributionsResponse>(`https://github-contributions-api.jogruber.de/v4/${USER}?y=last`)
-      .then((c) => {
-        if (!c?.contributions?.length) { setFailed(true); return; }
-        setDays(c.contributions);
-        setTotal(c.total?.lastYear ?? c.contributions.reduce((s, d) => s + d.count, 0));
+    fetch("/api/github", { signal: ctrl.signal })
+      .then((r) => (r.ok ? (r.json() as Promise<GithubPayload>) : null))
+      .then((d) => {
+        if (d?.publicRepos != null) setRepos(d.publicRepos);
+        if (!d?.days?.length) { setFailed(true); return; }
+        setDays(d.days);
+        setTotal(d.total);
       })
       .catch((e: unknown) => { if ((e as Error)?.name !== "AbortError") setFailed(true); });
-
     return () => ctrl.abort();
   }, []);
 
@@ -103,7 +95,7 @@ export default function StatsSection() {
         index="07"
         eyebrow="Open source"
         title="GitHub Activity"
-        sub="Pulled live from GitHub every time this page loads."
+        sub="Pulled from GitHub and refreshed every hour."
       />
 
       <motion.div
@@ -139,7 +131,7 @@ export default function StatsSection() {
           <Stat label="Contributions (last year)" value={total !== null ? total.toLocaleString("en-IN") : "—"} />
           <Stat label="Active days" value={days ? String(activeDays) : "—"} />
           <Stat label="Longest streak" value={days ? `${longestStreak(shown)} days` : "—"} />
-          <Stat label="Public repos" value={profile ? String(profile.public_repos) : "35+"} />
+          <Stat label="Public repos" value={repos !== null ? String(repos) : "35+"} />
         </dl>
 
         <div className="rounded-xl bg-[#0a0a0c] p-4">

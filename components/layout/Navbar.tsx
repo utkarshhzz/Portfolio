@@ -9,24 +9,16 @@ import { LINKS, SECTIONS, SECTION_IDS, scrollToSection } from "@/lib/sections";
 const NAV = SECTIONS.filter((s) => s.nav);
 
 export default function Navbar({ onOpenPalette }: { onOpenPalette: () => void }) {
-  const [visible, setVisible] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const active = useActiveSection(SECTION_IDS);
 
-  // Hidden while the cinematic hero scrubs; appears once it has played out.
+  // Transparent over the top of the hero, solid once the page scrolls
   useEffect(() => {
-    const update = () => {
-      const hero = document.getElementById("hero");
-      const end = hero ? hero.offsetTop + hero.offsetHeight - window.innerHeight * 1.05 : 0;
-      setVisible(window.scrollY >= end);
-    };
+    const update = () => setScrolled(window.scrollY > 24);
     update();
     window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
+    return () => window.removeEventListener("scroll", update);
   }, []);
 
   useEffect(() => {
@@ -41,21 +33,19 @@ export default function Navbar({ onOpenPalette }: { onOpenPalette: () => void })
     scrollToSection(id);
   };
 
-  const shown = visible || mobileOpen;
-
   return (
     <motion.header
       className="navbar"
-      initial={false}
-      animate={{ opacity: shown ? 1 : 0, y: shown ? 0 : -16 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      style={{ pointerEvents: shown ? "auto" : "none" }}
-      inert={!shown}
+      data-solid={scrolled || mobileOpen}
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6">
         <button
           type="button"
-          onClick={() => go("identity")}
+          onClick={() => { setMobileOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          aria-label="Utkarsh Kumar, back to top"
           className="flex items-center gap-2.5 font-semibold tracking-tight text-[var(--text-1)]"
         >
           <span aria-hidden className="grid size-8 place-items-center rounded-lg border border-[var(--gold-border)] bg-[var(--gold-dim)] font-mono text-[13px] text-[var(--gold)]">

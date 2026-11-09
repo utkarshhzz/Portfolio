@@ -10,7 +10,8 @@ const csp = [
   "font-src 'self'",
   "img-src 'self' data: blob:",
   "media-src 'self'",
-  "connect-src 'self' https://api.github.com https://github-contributions-api.jogruber.de https://formspree.io",
+  // GitHub data is proxied through /api/github, so the browser only needs Formspree
+  "connect-src 'self' https://formspree.io",
   "form-action 'self' https://formspree.io",
   "frame-ancestors 'none'",
   "base-uri 'self'",
